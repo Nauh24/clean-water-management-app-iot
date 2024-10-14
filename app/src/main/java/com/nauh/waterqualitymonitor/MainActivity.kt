@@ -1,13 +1,19 @@
 package com.nauh.waterqualitymonitor
 
+
+
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,21 +26,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nauh.waterqualitymonitor.ui.screen.*
+import com.nauh.waterqualitymonitor.ui.screen.Dashboard
+import com.nauh.waterqualitymonitor.ui.screen.Invoice
+import com.nauh.waterqualitymonitor.ui.screen.Notification
+import com.nauh.waterqualitymonitor.ui.screen.Statistics
 import com.nauh.waterqualitymonitor.ui.theme.TopAppBarBackground
-import io.sentry.compose.withSentryObservableEffect
+
 import com.nauh.waterqualitymonitor.ui.theme.WaterQualityMonitorTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        enableEdgeToEdge()
         setContent {
             WaterQualityMonitorTheme {
                 var showBottomBar by rememberSaveable { mutableStateOf(true) }
-                val navController = rememberNavController().withSentryObservableEffect()
+                val navController = rememberNavController()
                 val backStackEntry by navController.currentBackStackEntryAsState()
-
                 Scaffold(
                     bottomBar = {
                         NavigationBar(containerColor = TopAppBarBackground) {
@@ -138,8 +146,17 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
     }
 }
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable

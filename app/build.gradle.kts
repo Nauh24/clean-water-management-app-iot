@@ -67,10 +67,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation (libs.sentry.sentry.android)
-    implementation (libs.sentry.compose.android)
 
-    implementation (libs.material3)
     implementation (libs.compose.material3.datetime.pickers)
 
 }
