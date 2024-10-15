@@ -31,8 +31,8 @@ import com.nauh.waterqualitymonitor.ui.screen.Invoice
 import com.nauh.waterqualitymonitor.ui.screen.Notification
 import com.nauh.waterqualitymonitor.ui.screen.Statistics
 import com.nauh.waterqualitymonitor.ui.theme.TopAppBarBackground
-
 import com.nauh.waterqualitymonitor.ui.theme.WaterQualityMonitorTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -162,5 +162,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     WaterQualityMonitorTheme {
+
     }
 }

@@ -68,6 +68,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation (libs.compose.material3.datetime.pickers)
-
+    implementation (libs.accompanist.pager)
+    implementation(libs.material)
 }
