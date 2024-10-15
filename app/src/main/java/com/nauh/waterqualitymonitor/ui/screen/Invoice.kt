@@ -19,7 +19,7 @@ fun Invoice(navController: NavController) {
 
     // Tính toán
     val totalWaterConsumed = currentWaterIndex - oldWaterIndex  // Tổng lượng nước tiêu thụ
-    val totalCost = (totalWaterConsumed / 1000) * costPerCubicMeter  // Tính tổng chi phí
+    val totalCost = totalWaterConsumed * costPerCubicMeter  // Tính tổng chi phí
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -48,11 +48,11 @@ fun Invoice(navController: NavController) {
 
             // Hiển thị chỉ số nước
             Text(
-                text = "Chỉ số nước cũ: $oldWaterIndex L",
+                text = "CS cũ: $oldWaterIndex L",
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "Chỉ số nước hiện tại: $currentWaterIndex L",
+                text = "CS mới: $currentWaterIndex L",
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -60,7 +60,7 @@ fun Invoice(navController: NavController) {
 
             // Hiển thị thông tin tiêu thụ nước và chi phí
             Text(
-                text = "Tổng lượng nước tiêu thụ: $totalWaterConsumed L",
+                text = "Tiêu thụ: $totalWaterConsumed L",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
