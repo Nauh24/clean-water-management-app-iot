@@ -1,29 +1,110 @@
 package com.nauh.waterqualitymonitor.ui.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
 fun Dashboard(navController: NavController) {
-    Surface(color = MaterialTheme.colorScheme.background) {
-        Column {
-            Text(text = "Water Usage Overview")
-            // Mock data for display
-            Text(text = "Total Water Used: 1500L")
-            Text(text = "Warning: Contaminated Water!")
-            Button(onClick = { navController.navigate("invoice") }) {
-                Text("View Invoices")
+    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Tổng Quan Chất Lượng Nước",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Card for Turbidity
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Độ Đục",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "5 NTU",
+                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                    )
+                }
             }
-            Button(onClick = { navController.navigate("statistics") }) {
-                Text("View Statistics")
+
+            // Card for Conductivity (EC)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Độ Dẫn Điện (EC)",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "200 µS/cm",
+                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                    )
+                }
             }
-            Button(onClick = { navController.navigate("warnings") }) {
-                Text("View Warnings")
+
+            // Card for Temperature
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Nhiệt Độ",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "25°C",
+                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                    )
+                }
+            }
+
+            // Card for Relay Status
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Trạng Thái Relay",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Bật",
+                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                    )
+                }
             }
         }
     }
