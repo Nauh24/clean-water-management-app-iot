@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nauh.waterqualitymonitor.ui.screen.Dashboard
+import com.nauh.waterqualitymonitor.ui.screen.DashboardDetail
 import com.nauh.waterqualitymonitor.ui.screen.Invoice
 import com.nauh.waterqualitymonitor.ui.screen.Notification
 import com.nauh.waterqualitymonitor.ui.screen.NotificationDetail
@@ -150,6 +151,10 @@ class MainActivity : ComponentActivity() {
                                 if (notificationId != null) {
                                     NotificationDetail(navController = navController, notificationId = notificationId)
                                 }
+                            }
+                            composable("dashboard_detail/{chartType}") { backStackEntry ->
+                                val chartType = backStackEntry.arguments?.getString("chartType") ?: "turbidity"
+                                DashboardDetail(navController, chartType)
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.nauh.waterqualitymonitor.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +30,11 @@ fun Dashboard(navController: NavController) {
 
             // Card for Turbidity
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable{
+                        navController.navigate("dashboard_detail/turbidity")
+                    },
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(
@@ -49,7 +54,11 @@ fun Dashboard(navController: NavController) {
 
             // Card for Conductivity (EC)
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable{
+                        navController.navigate("dashboard_detail/ec")
+                    },
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(
@@ -69,7 +78,11 @@ fun Dashboard(navController: NavController) {
 
             // Card for Temperature
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable{
+                        navController.navigate("dashboard_detail/temperature")
+                    },
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(
@@ -89,7 +102,11 @@ fun Dashboard(navController: NavController) {
 
             // Card for Relay Status
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable{
+                        navController.navigate("dashboard_detail/relay")
+                    },
                 shape = MaterialTheme.shapes.medium
             ) {
                 Column(
