@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.nauh.waterqualitymonitor.ui.screen.Dashboard
 import com.nauh.waterqualitymonitor.ui.screen.Invoice
 import com.nauh.waterqualitymonitor.ui.screen.Notification
+import com.nauh.waterqualitymonitor.ui.screen.NotificationDetail
 import com.nauh.waterqualitymonitor.ui.screen.Statistics
 import com.nauh.waterqualitymonitor.ui.theme.TopAppBarBackground
 import com.nauh.waterqualitymonitor.ui.theme.WaterQualityMonitorTheme
@@ -132,7 +133,7 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxSize()
                                         .padding(innerPadding),
                                 ) {
-                                    Statistics()
+                                    Statistics(navController)
                                 }
                             }
                             composable("notifications") {
@@ -141,7 +142,13 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxSize()
                                         .padding(innerPadding),
                                 ) {
-                                    Notification()
+                                    Notification(navController)
+                                }
+                            }
+                            composable("notification_detail/{notificationId}") { backStackEntry ->
+                                val notificationId = backStackEntry.arguments?.getString("notificationId")?.toIntOrNull()
+                                if (notificationId != null) {
+                                    NotificationDetail(navController = navController, notificationId = notificationId)
                                 }
                             }
                         }

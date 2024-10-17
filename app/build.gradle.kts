@@ -69,5 +69,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation (libs.accompanist.pager)
-    implementation(libs.material)
+    implementation (libs.mpandroidchart)
+    implementation(libs.material.v190)
+
+
+
+
 }
