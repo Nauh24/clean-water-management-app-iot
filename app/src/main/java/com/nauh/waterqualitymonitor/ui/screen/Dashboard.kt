@@ -22,6 +22,7 @@ fun Dashboard(navController: NavController) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
             Text(
                 text = "Tổng Quan Chất Lượng Nước",
                 style = MaterialTheme.typography.headlineMedium,
