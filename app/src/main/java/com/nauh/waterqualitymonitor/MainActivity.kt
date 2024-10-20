@@ -125,7 +125,7 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxSize()
                                         .padding(innerPadding),
                                 ) {
-                                    Invoice(navController)
+                                    Invoice(navController, username = "Nauh")
                                 }
                             }
                             composable("statistics") {
