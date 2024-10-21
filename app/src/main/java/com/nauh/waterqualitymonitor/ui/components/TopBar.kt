@@ -11,10 +11,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.nauh.waterqualitymonitor.R
+import com.nauh.waterqualitymonitor.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(username: String, onAccountClick: () -> Unit) {
+fun TopBar(
+    pageTitle: String, // Tham số mới để nhận tên trang
+    username: String = "Nauh", // Giá trị mặc định cho username
+    onAccountClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         title = {
             Row(
@@ -23,8 +28,8 @@ fun TopBar(username: String, onAccountClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Tổng quan",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = pageTitle, // Sử dụng tên trang thay vì "Tổng quan"
+                    style = Typography.titleLarge,
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
@@ -36,7 +41,7 @@ fun TopBar(username: String, onAccountClick: () -> Unit) {
                 )
                 Text(
                     text = username,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    style = Typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

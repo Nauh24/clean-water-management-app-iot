@@ -9,7 +9,7 @@ import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.ui.components.TopBar
 
 @Composable
-fun Invoice(navController: NavController, username: String) {
+fun Invoice(navController: NavController) {
     // Dữ liệu giả lập cho demo
     val customerName = "Nguyễn Văn Huân"
     val address = "Thụy Ninh, Thái Thụy, Thái Bình"
@@ -22,7 +22,7 @@ fun Invoice(navController: NavController, username: String) {
     val totalCost = totalWaterConsumed * costPerCubicMeter  // Tính tổng chi phí
 
     Scaffold(
-        topBar = { TopBar(username = username, onAccountClick = { /* Thêm hành động khi nhấn vào biểu tượng tài khoản */ }) }
+        topBar = { TopBar(pageTitle = "Hóa Đơn", onAccountClick = {}) },
     ) { paddingValues ->
         Surface(
             modifier = Modifier

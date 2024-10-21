@@ -14,13 +14,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.R
 import com.nauh.waterqualitymonitor.ui.components.TopBar
+import com.nauh.waterqualitymonitor.ui.theme.Shapes
+import com.nauh.waterqualitymonitor.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(navController: NavController) {
     Scaffold(
         topBar = {
-            TopBar(username = "User Name", onAccountClick = {}) // Thêm tên người dùng ở đây
+            TopBar(pageTitle = "Tổng quan", onAccountClick = {}) // Thêm tên người dùng ở đây
         },
         content = { paddingValues ->
             // Nội dung của trang
@@ -30,11 +32,6 @@ fun Dashboard(navController: NavController) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Tổng Quan Chất Lượng Nước",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
 
                 // Card cho Độ Đục
                 Card(
@@ -43,7 +40,7 @@ fun Dashboard(navController: NavController) {
                         .clickable {
                             navController.navigate("dashboard_detail/turbidity")
                         },
-                    shape = MaterialTheme.shapes.medium
+                    shape = Shapes.medium
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -51,11 +48,11 @@ fun Dashboard(navController: NavController) {
                     ) {
                         Text(
                             text = "Độ Đục",
-                            style = MaterialTheme.typography.titleMedium
+                            style = Typography.titleMedium
                         )
                         Text(
                             text = "5 NTU",
-                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                            style = Typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
                         )
                     }
                 }
@@ -67,7 +64,7 @@ fun Dashboard(navController: NavController) {
                         .clickable {
                             navController.navigate("dashboard_detail/ec")
                         },
-                    shape = MaterialTheme.shapes.medium
+                    shape = Shapes.medium
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -75,11 +72,11 @@ fun Dashboard(navController: NavController) {
                     ) {
                         Text(
                             text = "Độ Dẫn Điện (EC)",
-                            style = MaterialTheme.typography.titleMedium
+                            style = Typography.titleMedium
                         )
                         Text(
                             text = "200 µS/cm",
-                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                            style = Typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
                         )
                     }
                 }
@@ -91,7 +88,7 @@ fun Dashboard(navController: NavController) {
                         .clickable {
                             navController.navigate("dashboard_detail/temperature")
                         },
-                    shape = MaterialTheme.shapes.medium
+                    shape = Shapes.medium
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -99,11 +96,11 @@ fun Dashboard(navController: NavController) {
                     ) {
                         Text(
                             text = "Nhiệt Độ",
-                            style = MaterialTheme.typography.titleMedium
+                            style = Typography.titleMedium
                         )
                         Text(
                             text = "25°C",
-                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                            style = Typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
                         )
                     }
                 }
@@ -115,7 +112,7 @@ fun Dashboard(navController: NavController) {
                         .clickable {
                             navController.navigate("dashboard_detail/relay")
                         },
-                    shape = MaterialTheme.shapes.medium
+                    shape = Shapes.medium
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -123,11 +120,11 @@ fun Dashboard(navController: NavController) {
                     ) {
                         Text(
                             text = "Trạng Thái Relay",
-                            style = MaterialTheme.typography.titleMedium
+                            style = Typography.titleMedium
                         )
                         Text(
                             text = "Bật",
-                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                            style = Typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
                         )
                     }
                 }
