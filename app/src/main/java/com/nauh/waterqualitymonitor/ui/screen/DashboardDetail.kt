@@ -1,5 +1,6 @@
 package com.nauh.waterqualitymonitor.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.ui.components.TopBar
@@ -27,13 +29,15 @@ data class Measurement(
 @Composable
 fun DashboardDetail(navController: NavController, dashboardType: String) {
     var measurements by remember { mutableStateOf(listOf<Measurement>()) }
+    var counter by remember { mutableStateOf(1) } // Biến đếm bắt đầu từ 1
 
     // Cập nhật dữ liệu mỗi 10 giây
     LaunchedEffect(Unit) {
         while (true) {
-            val newMeasurement = generateMeasurement(dashboardType)
+            val newMeasurement = generateMeasurement(dashboardType, counter) // Truyền giá trị counter
             measurements = listOf(newMeasurement) + measurements // Thêm dữ liệu mới vào đầu danh sách
-            delay(1000) // Đợi 10 giây
+            counter++ // Tăng số thứ tự sau khi thêm
+            delay(1000) // Đợi 1 giây
         }
     }
 
@@ -41,6 +45,9 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
         topBar = {
             TopBar(
                 pageTitle = "Chi tiết $dashboardType",
+                onBackClick = {
+                    navController.popBackStack()
+                },
                 onAccountClick = {
                     // Hành động khi nhấn vào biểu tượng tài khoản
                 }
@@ -55,7 +62,6 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
 
-
                 // Hiển thị bảng dữ liệu
                 MeasurementTable(measurements)
             }
@@ -65,33 +71,62 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
 
 @Composable
 fun MeasurementTable(measurements: List<Measurement>) {
-    // Tiêu đề bảng
+    // Tiêu đề bảng với đường phân cách dưới
     Column {
+        // Tiêu đề của bảng
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp), // Thêm padding để tạo khoảng cách cho tiêu đề
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("STT", modifier = Modifier.weight(1f))
-            Text("Thời Gian", modifier = Modifier.weight(2f))
-            Text("Dữ Liệu Đo", modifier = Modifier.weight(2f))
-            Text("Trạng Thái", modifier = Modifier.weight(2f))
+            Text(
+                "STT",
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.primary, // Thay đổi màu chữ để nổi bật
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold) // Tăng độ đậm
+            )
+            Text(
+                "Thời Gian",
+                modifier = Modifier.weight(2f),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                "Dữ Liệu Đo",
+                modifier = Modifier.weight(2f),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                "Trạng Thái",
+                modifier = Modifier.weight(2f),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+            )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Thêm đường phân cách dưới tiêu đề
+        Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), thickness = 1.dp)
 
-        // Duyệt qua danh sách dữ liệu và hiển thị
+        // Hiển thị danh sách các hàng với đường phân cách giữa các hàng
         LazyColumn {
             items(measurements) { measurement ->
                 MeasurementRow(measurement)
+                Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), thickness = 1.dp)
             }
         }
     }
 }
 
+
 @Composable
 fun MeasurementRow(measurement: Measurement) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .background(measurement.color),  // Sử dụng màu sắc từ measurement
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -103,7 +138,7 @@ fun MeasurementRow(measurement: Measurement) {
 }
 
 // Hàm để sinh dữ liệu đo
-fun generateMeasurement(dashboardType: String): Measurement {
+fun generateMeasurement(dashboardType: String, id: Int): Measurement { // Thêm id là tham số
     val randomValue = when (dashboardType) {
         "turbidity" -> (0..150).random().toDouble() // Đảm bảo tên khớp với route
         "ec" -> (0..1500).random().toDouble()
@@ -128,7 +163,7 @@ fun generateMeasurement(dashboardType: String): Measurement {
             randomValue in 20.0..60.0 -> "Bình thường" to Color.White
             else -> "Nóng" to Color(0xFFFFC107)
         }
-        "relay" -> when{
+        "relay" -> when {
             randomValue == 0.0 -> "Tắt" to Color(0xFFFFEBEE)
             randomValue == 1.0 -> "Bật" to Color(0xFFC8E6C9)
             else -> "Không xác định" to Color.White
@@ -137,5 +172,5 @@ fun generateMeasurement(dashboardType: String): Measurement {
     }
 
     val timestamp = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-    return Measurement(id = (1..1000).random(), timestamp = timestamp, value = randomValue, status = status, color = color)
+    return Measurement(id = id, timestamp = timestamp, value = randomValue, status = status, color = color)
 }

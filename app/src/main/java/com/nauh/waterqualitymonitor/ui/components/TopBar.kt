@@ -6,10 +6,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.nauh.waterqualitymonitor.R
 import com.nauh.waterqualitymonitor.ui.theme.Typography
 
@@ -18,11 +18,17 @@ import com.nauh.waterqualitymonitor.ui.theme.Typography
 fun TopBar(
     pageTitle: String,
     username: String = "Nauh",
+    onBackClick: (() -> Unit)? = null, // Thêm tùy chọn icon trở về
     onAccountClick: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = {
-            TopBarContent(pageTitle = pageTitle, username = username, onAccountClick = onAccountClick)
+            TopBarContent(
+                pageTitle = pageTitle,
+                username = username,
+                onBackClick = onBackClick, // Truyền hàm callback để hiển thị icon trở về nếu có
+                onAccountClick = onAccountClick
+            )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -36,6 +42,7 @@ fun TopBar(
 private fun TopBarContent(
     pageTitle: String,
     username: String,
+    onBackClick: (() -> Unit)?,
     onAccountClick: () -> Unit
 ) {
     Row(
@@ -43,13 +50,26 @@ private fun TopBarContent(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        // Hiển thị icon trở về nếu hàm onBackClick khác null
+        if (onBackClick != null) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.arrow_back), // Thêm icon trở về
+                    contentDescription = "Back"
+                )
+            }
+        }
+
         Text(
             text = pageTitle,
             style = Typography.titleLarge,
             modifier = Modifier.weight(1f)
         )
-        AccountIcon(onClick = onAccountClick)
-        UserName(username = username)
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AccountIcon(onClick = onAccountClick)
+            UserName(username = username)
+        }
     }
 }
 
