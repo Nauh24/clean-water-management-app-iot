@@ -19,10 +19,11 @@ data class DashboardCard(
 
 val dashboardCards = listOf(
     DashboardCard("Độ Đục", "5 NTU", "dashboard_detail/turbidity"),
-    DashboardCard("Độ Dẫn Điện (EC)", "200 µS/cm", "dashboard_detail/ec"),
+    DashboardCard("Độ Dẫn Điện", "200 µS/cm", "dashboard_detail/ec"), // Sửa lại route
     DashboardCard("Nhiệt Độ", "25°C", "dashboard_detail/temperature"),
     DashboardCard("Trạng Thái Relay", "Bật", "dashboard_detail/relay")
 )
+
 
 @Composable
 fun Dashboard(navController: NavController) {

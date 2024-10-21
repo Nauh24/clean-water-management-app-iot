@@ -54,11 +54,7 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
             color = MaterialTheme.colorScheme.background
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Bảng Thống Kê $dashboardType",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+
 
                 // Hiển thị bảng dữ liệu
                 MeasurementTable(measurements)
@@ -109,35 +105,33 @@ fun MeasurementRow(measurement: Measurement) {
 // Hàm để sinh dữ liệu đo
 fun generateMeasurement(dashboardType: String): Measurement {
     val randomValue = when (dashboardType) {
-        "Độ đục" -> (0..15).random().toDouble()
-        "Độ dẫn điện" -> (0..1500).random().toDouble()
-        "Nhiệt độ" -> (0..100).random().toDouble()
-        "Relay" -> {
-            // Giả sử giá trị relay không có dữ liệu đo cụ thể
-            0.0
-        }
+        "turbidity" -> (0..150).random().toDouble() // Đảm bảo tên khớp với route
+        "ec" -> (0..1500).random().toDouble()
+        "temperature" -> (0..100).random().toDouble()
+        "relay" -> (0..1).random().toDouble()
         else -> 0.0
     }
 
     val (status, color) = when (dashboardType) {
-        "Độ đục" -> when {
+        "turbidity" -> when {
             randomValue <= 5 -> "Bình thường" to Color(0xFFE0F7FA)
             randomValue <= 10 -> "Cao" to Color(0xFFFFE0B2)
             else -> "Rất cao" to Color(0xFFFFCDD2)
         }
-        "Độ dẫn điện" -> when {
+        "ec" -> when {
             randomValue <= 500 -> "Bình thường" to Color(0xFFE0F7FA)
             randomValue <= 1000 -> "Cao" to Color(0xFFFFE0B2)
             else -> "Rất cao" to Color(0xFFFFCDD2)
         }
-        "Nhiệt độ" -> when {
+        "temperature" -> when {
             randomValue < 20 -> "Lạnh" to Color(0xFFBBDEFB)
             randomValue in 20.0..60.0 -> "Bình thường" to Color.White
             else -> "Nóng" to Color(0xFFFFC107)
         }
-        "Relay" -> {
-            // Chưa có dữ liệu đo cụ thể
-            "Trạng thái" to Color.White
+        "relay" -> when{
+            randomValue == 0.0 -> "Tắt" to Color(0xFFFFEBEE)
+            randomValue == 1.0 -> "Bật" to Color(0xFFC8E6C9)
+            else -> "Không xác định" to Color.White
         }
         else -> "Không xác định" to Color.White
     }
