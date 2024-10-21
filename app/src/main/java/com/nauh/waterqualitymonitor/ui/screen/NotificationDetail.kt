@@ -1,55 +1,82 @@
 package com.nauh.waterqualitymonitor.ui.screen
 
-
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.nauh.waterqualitymonitor.data.Notification
+import com.nauh.waterqualitymonitor.data.mockNotifications
+import com.nauh.waterqualitymonitor.ui.components.TopBar
 
 @Composable
 fun NotificationDetail(navController: NavController, notificationId: Int) {
-    // Find the notification by ID
-    val notification = notifications.firstOrNull { it.id == notificationId }
+    val notification = mockNotifications.firstOrNull { it.id == notificationId }
 
-    if (notification != null) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+    Scaffold(
+        topBar = {
+            TopBar(
+                pageTitle = "Chi tiết thông báo",
+                username = "Nauh",
+                onAccountClick = {
+                    // Điều hướng khi nhấn vào tài khoản nếu cần
+                }
+            )
+        },
+        content = { innerPadding ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                color = MaterialTheme.colorScheme.background
             ) {
-                Text(
-                    text = "Chi tiết thông báo",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Tiêu đề: ${notification.title}",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "Mô tả: ${notification.description}",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                // Hiển thị chi tiết thông số độ đục nếu có
-                if (notification.turbidity > 0) {
-                    Text(
-                        text = "Thông số độ đục: ${notification.turbidity} NTU",
-                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
-                    )
+                if (notification != null) {
+                    NotificationDetailContent(notification)
+                } else {
+                    NotificationNotFound()
                 }
             }
         }
-    } else {
-        Text(text = "Thông báo không tồn tại.")
+    )
+}
+
+@Composable
+fun NotificationDetailContent(notification: Notification) {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Tiêu đề: ${notification.title}",
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = "Mô tả: ${notification.description}",
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        // Hiển thị thông số độ đục nếu có
+        if (notification.turbidity > 0) {
+            Text(
+                text = "Thông số độ đục: ${notification.turbidity} NTU",
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+            )
+        }
+    }
+}
+
+@Composable
+fun NotificationNotFound() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Thông báo không tồn tại.",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

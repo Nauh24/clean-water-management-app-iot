@@ -16,8 +16,17 @@ val White = Color(0xFFFFFFFF)
 // App bar colors
 val TopAppBarBackground = Color(0x5E1D1D1D)
 
-// Additional colors for specific components
+// Background and surface colors
 val Background = Color(0xFFF5F5F5) // Background color
+val Surface = Color(0xFFFFFFFF) // Surface color for cards, etc.
+
+// Text colors
 val PrimaryText = Color(0xFF212121) // Primary text color
 val SecondaryText = Color(0xFF757575) // Secondary text color
+val ErrorText = Color(0xFFB00020) // Error text color
+
+// Error colors
 val Error = Color(0xFFB00020) // Error color
+
+// Other colors
+val AccentColor = Color(0xFF03DAC5) // Accent color, can be used for buttons or highlights

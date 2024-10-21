@@ -6,20 +6,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.nauh.waterqualitymonitor.ui.components.TopBar // Import TopBar
-
-// Data class for Notification
-data class Notification(val id: Int, val title: String, val description: String, val turbidity: Int)
-
-// Sample notifications
-val notifications = listOf(
-    Notification(1, "Ngắt nước do độ đục cao", "Hệ thống đã ngắt nước do độ đục vượt quá ngưỡng cho phép.", 10),
-    Notification(2, "Cảnh báo nhiệt độ", "Nhiệt độ nước đã vượt ngưỡng an toàn.", 0),
-    Notification(3, "Ngắt nước do độ dẫn cao", "Hệ thống đã ngắt nước do độ dẫn điện vượt ngưỡng cho phép.", 0)
-)
+import com.nauh.waterqualitymonitor.data.Notification
+import com.nauh.waterqualitymonitor.data.mockNotifications
+import com.nauh.waterqualitymonitor.ui.components.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,35 +20,54 @@ fun Notification(navController: NavController) {
     Scaffold(
         topBar = {
             TopBar(
-                pageTitle = "Thông báo",  // Tiêu đề của trang
+                pageTitle = "Thông báo",
                 onAccountClick = {
-                    // Hành động khi nhấn vào icon tài khoản (có thể điều hướng hoặc xử lý logic khác)
+                    // Xử lý sự kiện khi nhấn vào tài khoản nếu cần
                 }
             )
-        }
-    ) { paddingValues ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues), // Đảm bảo nội dung không bị che bởi TopBar
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+        },
+        content = { innerPadding ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                color = MaterialTheme.colorScheme.background
             ) {
-                // Danh sách thông báo
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(notifications) { notification ->
-                        NotificationCard(notification = notification) {
-                            // Điều hướng tới trang chi tiết thông báo khi nhấn
-                            navController.navigate("notification_detail/${notification.id}")
-                        }
-                    }
+                NotificationList(navController)
+            }
+        }
+    )
+}
+
+@Composable
+fun NotificationList(navController: NavController) {
+    if (mockNotifications.isEmpty()) {
+        EmptyNotificationMessage()
+    } else {
+        LazyColumn(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(mockNotifications) { notification ->
+                NotificationCard(notification = notification) {
+                    // Điều hướng đến màn hình chi tiết khi nhấn vào
+                    navController.navigate("notification_detail/${notification.id}")
                 }
             }
         }
+    }
+}
+
+@Composable
+fun EmptyNotificationMessage() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Không có thông báo nào.",
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 
@@ -64,7 +76,7 @@ fun NotificationCard(notification: Notification, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },  // Xử lý sự kiện khi nhấn vào
+            .clickable { onClick() },
         shape = MaterialTheme.shapes.medium
     ) {
         Column(

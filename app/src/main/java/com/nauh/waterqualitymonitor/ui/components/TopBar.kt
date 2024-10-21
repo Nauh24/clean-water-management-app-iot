@@ -1,4 +1,4 @@
-package com.nauh.waterqualitymonitor.ui.components // Đảm bảo đường dẫn package đúng với dự án của bạn
+package com.nauh.waterqualitymonitor.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,40 +16,59 @@ import com.nauh.waterqualitymonitor.ui.theme.Typography
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    pageTitle: String, // Tham số mới để nhận tên trang
-    username: String = "Nauh", // Giá trị mặc định cho username
+    pageTitle: String,
+    username: String = "Nauh",
     onAccountClick: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = pageTitle, // Sử dụng tên trang thay vì "Tổng quan"
-                    style = Typography.titleLarge,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.user), // Thay đổi thành ID icon bạn muốn sử dụng
-                    contentDescription = "Account",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onAccountClick() }
-                )
-                Text(
-                    text = username,
-                    style = Typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            TopBarContent(pageTitle = pageTitle, username = username, onAccountClick = onAccountClick)
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
             actionIconContentColor = MaterialTheme.colorScheme.onPrimary
         )
+    )
+}
+
+@Composable
+private fun TopBarContent(
+    pageTitle: String,
+    username: String,
+    onAccountClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = pageTitle,
+            style = Typography.titleLarge,
+            modifier = Modifier.weight(1f)
+        )
+        AccountIcon(onClick = onAccountClick)
+        UserName(username = username)
+    }
+}
+
+@Composable
+private fun AccountIcon(onClick: () -> Unit) {
+    Icon(
+        imageVector = ImageVector.vectorResource(id = R.drawable.user),
+        contentDescription = "Account",
+        modifier = Modifier
+            .size(24.dp)
+            .clickable { onClick() }
+    )
+}
+
+@Composable
+private fun UserName(username: String) {
+    Text(
+        text = username,
+        style = Typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+        modifier = Modifier.padding(start = 8.dp)
     )
 }
