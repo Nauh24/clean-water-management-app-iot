@@ -6,7 +6,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.nauh.waterqualitymonitor.charts.ECChart
 import com.nauh.waterqualitymonitor.charts.TemperatureChart
 import com.nauh.waterqualitymonitor.charts.TurbidityChart
 import com.nauh.waterqualitymonitor.charts.WaterBillChart
@@ -14,7 +13,6 @@ import com.nauh.waterqualitymonitor.ui.components.TopBar
 
 enum class ChartType(val displayName: String) {
     TURBIDITY("Turbidity"),
-    CONDUCTIVITY("Conductivity (EC)"),
     TEMPERATURE("Temperature"),
     WATER_BILL("Water Bill")
 }
@@ -88,7 +86,6 @@ fun DropdownChartMenu(selectedChart: ChartType, onChartSelected: (ChartType) -> 
 fun DisplayChart(selectedChart: ChartType) {
     when (selectedChart) {
         ChartType.TURBIDITY -> TurbidityChart()
-        ChartType.CONDUCTIVITY -> ECChart()
         ChartType.TEMPERATURE -> TemperatureChart()
         ChartType.WATER_BILL -> WaterBillChart()
     }

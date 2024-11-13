@@ -141,7 +141,6 @@ fun MeasurementRow(measurement: Measurement) {
 fun generateMeasurement(dashboardType: String, id: Int): Measurement { // Thêm id là tham số
     val randomValue = when (dashboardType) {
         "turbidity" -> (0..150).random().toDouble() // Đảm bảo tên khớp với route
-        "ec" -> (0..1500).random().toDouble()
         "temperature" -> (0..100).random().toDouble()
         "relay" -> (0..1).random().toDouble()
         else -> 0.0
@@ -151,11 +150,6 @@ fun generateMeasurement(dashboardType: String, id: Int): Measurement { // Thêm 
         "turbidity" -> when {
             randomValue <= 5 -> "Bình thường" to Color(0xFFE0F7FA)
             randomValue <= 10 -> "Cao" to Color(0xFFFFE0B2)
-            else -> "Rất cao" to Color(0xFFFFCDD2)
-        }
-        "ec" -> when {
-            randomValue <= 500 -> "Bình thường" to Color(0xFFE0F7FA)
-            randomValue <= 1000 -> "Cao" to Color(0xFFFFE0B2)
             else -> "Rất cao" to Color(0xFFFFCDD2)
         }
         "temperature" -> when {
