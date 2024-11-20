@@ -72,7 +72,9 @@ dependencies {
     implementation (libs.mpandroidchart)
     implementation(libs.material.v190)
 
+    implementation (libs.squareup.retrofit)
+    implementation (libs.converter.gson)
 
-
+    implementation (libs.socket.io.client)  // Thư viện Socket.IO cho Android
 
 }
