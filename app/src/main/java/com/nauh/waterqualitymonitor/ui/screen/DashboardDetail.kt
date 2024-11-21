@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.nauh.waterqualitymonitor.data.model.StatsResponse
+import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import com.nauh.waterqualitymonitor.ui.components.TopBar
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -30,13 +32,53 @@ data class Measurement(
 fun DashboardDetail(navController: NavController, dashboardType: String) {
     var measurements by remember { mutableStateOf(listOf<Measurement>()) }
     var counter by remember { mutableStateOf(1) } // Biến đếm bắt đầu từ 1
+    val apiService = RetrofitClient.apiService
 
     // Cập nhật dữ liệu mỗi 10 giây
     LaunchedEffect(Unit) {
         while (true) {
-            val newMeasurement = generateMeasurement(dashboardType, counter) // Truyền giá trị counter
-            measurements = listOf(newMeasurement) + measurements // Thêm dữ liệu mới vào đầu danh sách
-            counter++ // Tăng số thứ tự sau khi thêm
+//            val newMeasurement = generateMeasurement(dashboardType, counter) // Truyền giá trị counter
+//            measurements = listOf(newMeasurement) + measurements // Thêm dữ liệu mới vào đầu danh sách
+//            counter++ // Tăng số thứ tự sau khi thêm
+            apiService.getDatas().enqueue(object : retrofit2.Callback<StatsResponse> {
+                override fun onResponse(
+                    call: retrofit2.Call<StatsResponse>,
+                    response: retrofit2.Response<StatsResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val data = response.body()?.metadata?.data
+                        if (data != null) {
+                            measurements = data.mapIndexed { index, statData ->
+                                Measurement(
+                                    id = index + 1,
+                                    timestamp = statData.createdAt,
+                                    value = when (dashboardType) {
+                                        "turbidity" -> statData.tds.toDouble()
+                                        "temperature" -> statData.temperature.toDouble()
+                                        "relay" -> statData.relay.toDouble()
+                                        else -> 0.0
+                                    },
+                                    status = when (dashboardType) {
+                                        "turbidity" -> "Bình thường"
+                                        "temperature" -> "Bình thường"
+                                        "relay" -> if (statData.relay == 0) "Tắt" else "Bật"
+                                        else -> "Không xác định"
+                                    },
+                                    color = when (dashboardType) {
+                                        "turbidity" -> Color(0xFFE0F7FA)
+                                        "temperature" -> Color.White
+                                        "relay" -> if (statData.relay == 0) Color(0xFFFFEBEE) else Color(0xFFC8E6C9)
+                                        else -> Color.White
+                                    }
+                                )
+                            }
+                        }
+                    }
+            }
+                override fun onFailure(call: retrofit2.Call<StatsResponse>, t: Throwable) {
+                    // Xử lý lỗi
+                }
+            })
             delay(1000) // Đợi 1 giây
         }
     }

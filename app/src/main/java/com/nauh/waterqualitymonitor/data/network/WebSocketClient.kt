@@ -1,4 +1,4 @@
-package com.nauh.waterqualitymonitor
+package com.nauh.waterqualitymonitor.data.network
 
 import android.util.Log
 import io.socket.client.IO

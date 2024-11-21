@@ -29,6 +29,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nauh.waterqualitymonitor.data.model.StatsResponse
+import com.nauh.waterqualitymonitor.data.network.RetrofitClient
+import com.nauh.waterqualitymonitor.data.network.WebSocketClient
 import com.nauh.waterqualitymonitor.ui.screen.Dashboard
 import com.nauh.waterqualitymonitor.ui.screen.DashboardDetail
 import com.nauh.waterqualitymonitor.ui.screen.Invoice
@@ -182,40 +185,22 @@ class MainActivity : ComponentActivity() {
         }
 
         // Kết nối WebSocket
-//        try {
-//            // Kết nối WebSocket
-//            webSocketClient = WebSocketClient()
-//            webSocketClient.connect()
-//            Log.d("WebSocket", "WebSocket connected")
-//        } catch (e: Exception) {
-//            Log.e("WebSocket", "Connection Error: ${e.message}", e)
-//        }
+        try {
+            // Kết nối WebSocket
+            webSocketClient = WebSocketClient()
+            webSocketClient.connect()
+            Log.d("WebSocket", "WebSocket connected")
+        } catch (e: Exception) {
+            Log.e("WebSocket", "Connection Error: ${e.message}", e)
+        }
 //
         // Gọi API
-//        RetrofitClient.apiService.getDatas().enqueue(object : Callback<StatsResponse> {
-//            override fun onResponse(call: Call<DeviceResponse>, response: Response<DeviceResponse>) {
-//                if (response.isSuccessful) {
-//                    val devices = response.body()?.metadata ?: emptyList() // Xử lý null safety
-//                    Log.d("API_SUCCESS", "Devices: $devices")
-//                } else {
-//                    Log.e("API_ERROR", "Error: ${response.errorBody()?.string()}")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<DeviceResponse>, t: Throwable) {
-//                Log.e("API_FAILURE", "Failed to connect to API: ${t.message}")
-//                Toast.makeText(
-//                    this@MainActivity,
-//                    "API connection failed: ${t.message}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        })
         RetrofitClient.apiService.getDatas().enqueue(object : Callback<StatsResponse> {
             override fun onResponse(call: Call<StatsResponse>, response: Response<StatsResponse>) {
                 if (response.isSuccessful) {
                     val stats = response.body()?.metadata?.data ?: emptyList() // Xử lý null safety
                     Log.d("API_SUCCESS", "Stats: $stats")
+
                 } else {
                     Log.e("API_ERROR", "Error: ${response.errorBody()?.string()}")
                 }
@@ -232,10 +217,10 @@ class MainActivity : ComponentActivity() {
         })
 
     }
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        webSocketClient.disconnect()  // Ngắt kết nối WebSocket khi Activity bị hủy
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+        webSocketClient.disconnect()  // Ngắt kết nối WebSocket khi Activity bị hủy
+    }
 }
 
 

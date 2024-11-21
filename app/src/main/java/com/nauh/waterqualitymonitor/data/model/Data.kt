@@ -1,4 +1,4 @@
-package com.nauh.waterqualitymonitor
+package com.nauh.waterqualitymonitor.data.model
 
 // Lớp đại diện cho từng item trong mảng "data"
 data class StatData(

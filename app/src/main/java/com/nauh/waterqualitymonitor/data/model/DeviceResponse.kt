@@ -1,4 +1,4 @@
-package com.nauh.waterqualitymonitor
+package com.nauh.waterqualitymonitor.data.model
 
 data class DeviceResponse(
     val message: String,

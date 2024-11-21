@@ -1,5 +1,6 @@
-package com.nauh.waterqualitymonitor
+package com.nauh.waterqualitymonitor.data.network
 
+import com.nauh.waterqualitymonitor.data.model.StatsResponse
 import retrofit2.Call
 import retrofit2.http.GET
 

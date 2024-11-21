@@ -1,4 +1,4 @@
-package com.nauh.waterqualitymonitor
+package com.nauh.waterqualitymonitor.data.network
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
