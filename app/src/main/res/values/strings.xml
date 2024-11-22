@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Water Quality Monitor</string>
+    <string name="threshold_temperature">35</string> <!-- Ngưỡng nhiệt độ -->
+    <string name="threshold_tds">500</string> <!-- Ngưỡng TDS -->
 </resources>
