@@ -15,6 +15,7 @@ import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.data.model.StatsResponse
 import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import com.nauh.waterqualitymonitor.ui.components.TopBar
+import com.nauh.waterqualitymonitor.utils.formatTimestamp
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -153,7 +154,7 @@ fun MeasurementTable(measurements: List<Measurement>) {
 
         // Hiển thị danh sách các hàng với đường phân cách giữa các hàng
         LazyColumn {
-            items(measurements) { measurement ->
+            items(measurements.reversed()) { measurement ->
                 MeasurementRow(measurement)
                 Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), thickness = 1.dp)
             }
@@ -164,16 +165,24 @@ fun MeasurementTable(measurements: List<Measurement>) {
 
 @Composable
 fun MeasurementRow(measurement: Measurement) {
+    val (date, time) = formatTimestamp(measurement.timestamp)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .background(measurement.color),  // Sử dụng màu sắc từ measurement
+            .background(measurement.color),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(measurement.id.toString(), modifier = Modifier.weight(1f))
-        Text(measurement.timestamp, modifier = Modifier.weight(2f))
+
+        // Hiển thị ngày và giờ trên 2 dòng
+        Column(modifier = Modifier.weight(2f)) {
+            Text(date)
+            Text(time)
+        }
+
         Text(measurement.value.toString(), modifier = Modifier.weight(2f))
         Text(measurement.status, modifier = Modifier.weight(2f))
     }
@@ -210,3 +219,24 @@ fun generateMeasurement(dashboardType: String, id: Int): Measurement { // Thêm 
     val timestamp = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
     return Measurement(id = id, timestamp = timestamp, value = randomValue, status = status, color = color)
 }
+
+//fun formatTimestamp(timestamp: String): Pair<String, String> {
+//    return try {
+//        // Chuyển timestamp thành đối tượng Date
+//        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+//        val date = inputFormat.parse(timestamp)
+//
+//        // Định dạng ngày
+//        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+//        val formattedDate = dateFormat.format(date)
+//
+//        // Định dạng giờ
+//        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+//        val formattedTime = timeFormat.format(date)
+//
+//        formattedDate to formattedTime
+//    } catch (e: Exception) {
+//        // Trường hợp lỗi định dạng
+//        "Không xác định" to "Không xác định"
+//    }
+//}

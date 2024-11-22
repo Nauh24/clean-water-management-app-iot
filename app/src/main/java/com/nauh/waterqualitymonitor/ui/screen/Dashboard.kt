@@ -4,28 +4,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.ui.components.TopBar
 import com.nauh.waterqualitymonitor.ui.theme.Shapes
 import com.nauh.waterqualitymonitor.ui.theme.Typography
-
-data class DashboardCard(
-    val title: String,
-    val value: String,
-    val route: String
-)
-
-val dashboardCards = listOf(
-    DashboardCard("Độ Đục", "5 NTU", "dashboard_detail/turbidity"),
-    DashboardCard("Nhiệt Độ", "25°C", "dashboard_detail/temperature"),
-    DashboardCard("Trạng Thái Relay", "Bật", "dashboard_detail/relay")
-)
-
+import com.nauh.waterqualitymonitor.viewmodels.DashboardViewModel
 
 @Composable
-fun Dashboard(navController: NavController) {
+fun Dashboard(navController: NavController, viewModel: DashboardViewModel = viewModel()) {
+    val dashboardData by viewModel.dashboardData.collectAsState()
+
     Scaffold(
         topBar = {
             TopBar(pageTitle = "Tổng quan", onAccountClick = {})
@@ -37,18 +30,31 @@ fun Dashboard(navController: NavController) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                dashboardCards.forEach { card ->
-                    DashboardCardView(card = card) {
-                        navController.navigate(card.route)
-                    }
-                }
+                DashboardCardView(
+                    title = "Độ Đục",
+                    value = dashboardData.turbidity,
+                    route = "dashboard_detail/turbidity",
+                    onClick = { navController.navigate("dashboard_detail/turbidity") }
+                )
+                DashboardCardView(
+                    title = "Nhiệt Độ",
+                    value = dashboardData.temperature,
+                    route = "dashboard_detail/temperature",
+                    onClick = { navController.navigate("dashboard_detail/temperature") }
+                )
+                DashboardCardView(
+                    title = "Trạng Thái Relay",
+                    value = dashboardData.relayStatus,
+                    route = "dashboard_detail/relay",
+                    onClick = { navController.navigate("dashboard_detail/relay") }
+                )
             }
         }
     )
 }
 
 @Composable
-fun DashboardCardView(card: DashboardCard, onClick: () -> Unit) {
+fun DashboardCardView(title: String, value: String, route: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,11 +66,11 @@ fun DashboardCardView(card: DashboardCard, onClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = card.title,
+                text = title,
                 style = Typography.titleMedium
             )
             Text(
-                text = card.value,
+                text = value,
                 style = Typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
             )
         }

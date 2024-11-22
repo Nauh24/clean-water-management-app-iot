@@ -195,26 +195,26 @@ class MainActivity : ComponentActivity() {
         }
 //
         // Gọi API
-        RetrofitClient.apiService.getDatas().enqueue(object : Callback<StatsResponse> {
-            override fun onResponse(call: Call<StatsResponse>, response: Response<StatsResponse>) {
-                if (response.isSuccessful) {
-                    val stats = response.body()?.metadata?.data ?: emptyList() // Xử lý null safety
-                    Log.d("API_SUCCESS", "Stats: $stats")
-
-                } else {
-                    Log.e("API_ERROR", "Error: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<StatsResponse>, t: Throwable) {
-                Log.e("API_FAILURE", "Failed to connect to API: ${t.message}")
-                Toast.makeText(
-                    this@MainActivity,
-                    "API connection failed: ${t.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
+//        RetrofitClient.apiService.getDatas().enqueue(object : Callback<StatsResponse> {
+//            override fun onResponse(call: Call<StatsResponse>, response: Response<StatsResponse>) {
+//                if (response.isSuccessful) {
+//                    val stats = response.body()?.metadata?.data ?: emptyList() // Xử lý null safety
+//                    Log.d("API_SUCCESS", "Stats: $stats")
+//
+//                } else {
+//                    Log.e("API_ERROR", "Error: ${response.errorBody()?.string()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<StatsResponse>, t: Throwable) {
+//                Log.e("API_FAILURE", "Failed to connect to API: ${t.message}")
+//                Toast.makeText(
+//                    this@MainActivity,
+//                    "API connection failed: ${t.message}",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        })
 
     }
     override fun onDestroy() {
