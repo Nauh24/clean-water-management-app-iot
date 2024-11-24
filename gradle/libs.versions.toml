@@ -1,6 +1,7 @@
 [versions]
 accompanistPager = "0.29.1-alpha"
 agp = "8.6.1"
+composeCharts = "1.0.0"
 converterGson = "2.9.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -20,6 +21,7 @@ squareupRetrofit = "2.9.0"
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+compose-charts = { module = "com.patrykandpatrick.vico:compose-charts", version.ref = "composeCharts" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

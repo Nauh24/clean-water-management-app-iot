@@ -24,10 +24,3 @@ data class MetadataContainer(
     val data: List<StatData>, // Mảng các StatData
     val meta: Metadata        // Thông tin meta
 )
-
-// Lớp đại diện cho phản hồi tổng thể từ API
-//data class StatsResponse(
-//    val message: String,
-//    val status: Int,
-//    val metadata: MetadataContainer
-//)

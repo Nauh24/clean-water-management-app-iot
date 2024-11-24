@@ -76,5 +76,6 @@ dependencies {
     implementation (libs.converter.gson)
 
     implementation (libs.socket.io.client)  // Thư viện Socket.IO cho Android
+//    implementation (libs.compose.charts)
 
 }

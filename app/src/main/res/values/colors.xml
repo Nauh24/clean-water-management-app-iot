@@ -20,4 +20,6 @@
     <color name="secondary_text">#757575</color> <!-- Màu văn bản phụ -->
     <color name="error">#B00020</color> <!-- Màu cảnh báo lỗi -->
     <color name="warning">#f5a19d</color> <!-- Màu cảnh báo -->
+    <color name="water">#3CA5DC</color>
+    <color name="green">#4CAF50</color>
 </resources>

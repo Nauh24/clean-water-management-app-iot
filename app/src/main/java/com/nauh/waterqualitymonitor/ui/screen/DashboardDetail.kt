@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +35,7 @@ import com.nauh.waterqualitymonitor.R
 import com.nauh.waterqualitymonitor.data.model.StatsResponse
 import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import com.nauh.waterqualitymonitor.ui.components.TopBar
+import com.nauh.waterqualitymonitor.utils.DataSaver
 import com.nauh.waterqualitymonitor.utils.formatTimestamp
 import kotlinx.coroutines.delay
 
@@ -49,61 +52,54 @@ data class Measurement(
 fun DashboardDetail(navController: NavController, dashboardType: String) {
     var measurements by remember { mutableStateOf(listOf<Measurement>()) }
     var counter by remember { mutableStateOf(1) } // Biến đếm bắt đầu từ 1
-    val apiService = RetrofitClient.apiService
+    val dataSaver = DataSaver(LocalContext.current) // Khởi tạo DataSaver
 
     // Truy xuất các giá trị từ strings.xml
     val turbidityThreshold =
         stringResource(id = R.string.threshold_tds).toDouble() // Chuyển từ String thành Int
     val temperatureThreshold = stringResource(id = R.string.threshold_temperature).toDouble()
     val warningColor = colorResource(id = R.color.warning)
+    val relay = colorResource(id = R.color.green)
 
-    // Cập nhật dữ liệu mỗi 10 giây
+    // Đọc và cập nhật dữ liệu mỗi khi cần
     LaunchedEffect(Unit) {
-        while (true) {
-            apiService.getDatas().enqueue(object : retrofit2.Callback<StatsResponse> {
-                override fun onResponse(
-                    call: retrofit2.Call<StatsResponse>,
-                    response: retrofit2.Response<StatsResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        val data = response.body()?.metadata?.data
-                        if (data != null) {
-                            measurements = data.mapIndexed { index, statData ->
-                                Measurement(
-                                    id = index + 1,
-                                    timestamp = statData.createdAt,
-                                    value = when (dashboardType) {
-                                        "turbidity" -> statData.tds.toDouble()
-                                        "temperature" -> statData.temperature.toDouble()
-                                        "relay" -> statData.relay.toDouble()
-                                        else -> 0.0
-                                    },
-                                    status = when (dashboardType) {
-                                        "turbidity" -> if (statData.tds >= turbidityThreshold) "Cao" else "Bình thường"
-                                        "temperature" -> if (statData.temperature >= temperatureThreshold) "Nóng" else "Bình thường"
-                                        "relay" -> if (statData.relay == 0) "Tắt" else "Bật"
-                                        else -> "Không xác định"
-                                    },
-                                    color = when (dashboardType) {
-                                        "turbidity" -> if (statData.tds >= turbidityThreshold) warningColor else Color.White
-                                        "temperature" -> if (statData.temperature >= temperatureThreshold) warningColor else Color.White
-                                        "relay" -> if (statData.relay == 0) warningColor else Color(
-                                            0xFFC8E6C9
-                                        )
+        // Đọc dữ liệu từ file
+        val fileName = "stats_data.json" // Đặt tên file
+        val dataFromFile = dataSaver.readDataFromFile(fileName)
 
-                                        else -> Color.White
-                                    }
-                                )
-                            }
-                        }
+        // Nếu có dữ liệu từ file, sắp xếp và lấy 100 bản ghi mới nhất
+        if (dataFromFile != null) {
+            // Sắp xếp dữ liệu theo thời gian giảm dần và lấy 100 bản ghi mới nhất
+            val latestMeasurements = dataFromFile
+                .sortedByDescending { it.createdAt } // Sắp xếp theo thời gian giảm dần
+                .take(100) // Lấy 100 bản ghi mới nhất
+
+            // Chuyển đổi dữ liệu sang định dạng Measurement để hiển thị trên giao diện
+            measurements = latestMeasurements.mapIndexed { index, statData ->
+                Measurement(
+                    id = index + 1,
+                    timestamp = statData.createdAt,
+                    value = when (dashboardType) {
+                        "turbidity" -> statData.tds.toDouble()
+                        "temperature" -> statData.temperature.toDouble()
+                        "flow_rate" -> statData.flowRate.toDouble()
+                        "relay" -> statData.relay.toDouble()
+                        else -> 0.0
+                    },
+                    status = when (dashboardType) {
+                        "turbidity" -> if (statData.tds >= turbidityThreshold) "Cao" else "Bình thường"
+                        "temperature" -> if (statData.temperature >= temperatureThreshold) "Nóng" else "Bình thường"
+                        "relay" -> if (statData.relay == 0) "Tắt" else "Bật"
+                        else -> ""
+                    },
+                    color = when (dashboardType) {
+                        "turbidity" -> if (statData.tds >= turbidityThreshold) warningColor else Color.White
+                        "temperature" -> if (statData.temperature >= temperatureThreshold) warningColor else Color.White
+                        "relay" -> if (statData.relay == 0) warningColor else relay
+                        else -> Color.White
                     }
-                }
-
-                override fun onFailure(call: retrofit2.Call<StatsResponse>, t: Throwable) {
-                    // Xử lý lỗi
-                }
-            })
-            delay(1000) // Đợi 1 giây
+                )
+            }
         }
     }
 
@@ -127,13 +123,13 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
             color = MaterialTheme.colorScheme.background
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-
                 // Hiển thị bảng dữ liệu
                 MeasurementTable(measurements)
             }
         }
     }
 }
+
 
 @Composable
 fun MeasurementTable(measurements: List<Measurement>) {
@@ -177,8 +173,8 @@ fun MeasurementTable(measurements: List<Measurement>) {
 
         // Hiển thị danh sách các hàng với đường phân cách giữa các hàng
         LazyColumn {
-            items(measurements.reversed()) { measurement ->
-                MeasurementRow(measurement)
+            itemsIndexed(measurements) { index, measurement -> // Sử dụng itemsIndexed
+                MeasurementRow(measurement = measurement, index = index + 1) // Đưa chỉ số bắt đầu từ 1
                 Divider(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                     thickness = 1.dp
@@ -189,8 +185,9 @@ fun MeasurementTable(measurements: List<Measurement>) {
 }
 
 
+
 @Composable
-fun MeasurementRow(measurement: Measurement) {
+fun MeasurementRow(measurement: Measurement, index: Int) {
     val (date, time) = formatTimestamp(measurement.timestamp)
 
     // Kiểm tra xem giá trị có vượt ngưỡng không để áp dụng màu chữ trắng
@@ -204,7 +201,7 @@ fun MeasurementRow(measurement: Measurement) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            measurement.id.toString(),
+            index.toString(), // Sử dụng chỉ số được truyền vào
             modifier = Modifier.weight(1f),
             color = textColor
         )
@@ -219,3 +216,4 @@ fun MeasurementRow(measurement: Measurement) {
         Text(measurement.status, modifier = Modifier.weight(2f), color = textColor)
     }
 }
+

@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.nauh.waterqualitymonitor.charts.FlowRateChart
 import com.nauh.waterqualitymonitor.charts.TemperatureChart
 import com.nauh.waterqualitymonitor.charts.TurbidityChart
 import com.nauh.waterqualitymonitor.charts.WaterBillChart
@@ -14,6 +15,7 @@ import com.nauh.waterqualitymonitor.ui.components.TopBar
 enum class ChartType(val displayName: String) {
     TURBIDITY("Turbidity"),
     TEMPERATURE("Temperature"),
+    FLOW_RATE("Flow Rate"),
     WATER_BILL("Water Bill")
 }
 
@@ -87,6 +89,7 @@ fun DisplayChart(selectedChart: ChartType) {
     when (selectedChart) {
         ChartType.TURBIDITY -> TurbidityChart()
         ChartType.TEMPERATURE -> TemperatureChart()
+        ChartType.FLOW_RATE -> FlowRateChart()
         ChartType.WATER_BILL -> WaterBillChart()
     }
 }

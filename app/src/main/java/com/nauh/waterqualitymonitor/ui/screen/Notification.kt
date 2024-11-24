@@ -21,6 +21,7 @@ import com.nauh.waterqualitymonitor.viewmodels.NotificationViewModel
 fun Notification(navController: NavController, viewModel: NotificationViewModel = NotificationViewModel()) {
     val alerts by viewModel.alerts.collectAsState()
 
+    // Đảm bảo luôn hiển thị dữ liệu mới khi có thay đổi
     Scaffold(
         topBar = {
             TopBar(
@@ -37,11 +38,7 @@ fun Notification(navController: NavController, viewModel: NotificationViewModel 
                     .padding(innerPadding),
                 color = MaterialTheme.colorScheme.background
             ) {
-                if (alerts.isEmpty()) {
-                    EmptyNotificationMessage()
-                } else {
-                    NotificationList(navController, alerts)
-                }
+                NotificationList(navController, alerts)
             }
         }
     )
@@ -49,29 +46,30 @@ fun Notification(navController: NavController, viewModel: NotificationViewModel 
 
 @Composable
 fun NotificationList(navController: NavController, alerts: List<Alert>) {
-    LazyColumn(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(alerts.reversed()) { alert ->
-            NotificationCard(alert = alert) {
-                // Điều hướng đến màn hình chi tiết khi nhấn vào
-                navController.navigate("notification_detail/${alert.id}")
+    // Nếu dữ liệu chưa được tải, hiển thị một loading indicator
+    if (alerts.isEmpty()) {
+        LoadingIndicator()
+    } else {
+        LazyColumn(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(alerts.reversed()) { alert ->
+                NotificationCard(alert = alert) {
+                    navController.navigate("notification_detail/${alert.id}")
+                }
             }
         }
     }
 }
 
 @Composable
-fun EmptyNotificationMessage() {
+fun LoadingIndicator() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "Không có thông báo nào.",
-            style = MaterialTheme.typography.bodyLarge
-        )
+        CircularProgressIndicator()
     }
 }
 

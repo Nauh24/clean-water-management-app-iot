@@ -4,6 +4,25 @@ import android.util.Log
 import io.socket.client.IO
 import io.socket.client.Socket
 
+// Singleton để nhận các cập nhật từ WebSocket
+object WebSocketReceiver {
+    var onUpdateReceived: (String) -> Unit = {}
+
+    fun setReceiver(onUpdate: (String) -> Unit) {
+        onUpdateReceived = onUpdate
+    }
+
+    // Mở kết nối WebSocket
+    fun connect() {
+        WebSocketClient().connect()
+    }
+
+    // Ngắt kết nối WebSocket
+    fun disconnect() {
+        WebSocketClient().disconnect()
+    }
+}
+
 class WebSocketClient {
 
     private var socket: Socket? = null
@@ -11,6 +30,11 @@ class WebSocketClient {
     // Kết nối WebSocket
     fun connect() {
         try {
+            // Nếu socket đã kết nối rồi, không kết nối lại
+            if (socket?.connected() == true) {
+                return
+            }
+
             socket = IO.socket("https://iot-backend-project.onrender.com") // URL của server WebSocket
             socket?.connect()
 
@@ -27,20 +51,18 @@ class WebSocketClient {
             socket?.on("message") { args ->
                 val message = args[0] as String
                 Log.d("WebSocket", "Received message: $message")
+                // Gửi dữ liệu message tới ViewModel
+                WebSocketReceiver.onUpdateReceived(message)
             }
 
-            // Lắng nghe thêm sự kiện khác, ví dụ "update"
+            // Lắng nghe sự kiện "update" từ server (thông báo mới)
             socket?.on("update") { args ->
                 val updateMessage = args[0] as String
                 Log.d("WebSocket", "Received update: $updateMessage")
+                // Gửi dữ liệu update tới ViewModel
+                WebSocketReceiver.onUpdateReceived(updateMessage)
             }
 
-            // Gửi thông điệp đến server
-            if (socket?.connected() == true) {
-                socket?.emit("message", "Hello from Android")
-            } else {
-                Log.e("WebSocket", "Not connected")
-            }
         } catch (e: Exception) {
             Log.e("WebSocket", "Error: ${e.message}")
             e.printStackTrace()

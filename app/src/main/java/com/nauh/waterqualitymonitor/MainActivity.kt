@@ -1,6 +1,5 @@
 package com.nauh.waterqualitymonitor
 
-
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,13 +40,17 @@ import com.nauh.waterqualitymonitor.ui.screen.NotificationDetail
 import com.nauh.waterqualitymonitor.ui.screen.Statistics
 import com.nauh.waterqualitymonitor.ui.theme.TopAppBarBackground
 import com.nauh.waterqualitymonitor.ui.theme.WaterQualityMonitorTheme
-
+import com.nauh.waterqualitymonitor.utils.DataSaver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
     private lateinit var webSocketClient: WebSocketClient
+    private lateinit var dataSaver: DataSaver
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,28 +197,31 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.e("WebSocket", "Connection Error: ${e.message}", e)
         }
-//
-        // Gọi API
-//        RetrofitClient.apiService.getDatas().enqueue(object : Callback<StatsResponse> {
-//            override fun onResponse(call: Call<StatsResponse>, response: Response<StatsResponse>) {
-//                if (response.isSuccessful) {
-//                    val stats = response.body()?.metadata?.data ?: emptyList() // Xử lý null safety
-//                    Log.d("API_SUCCESS", "Stats: $stats")
-//
-//                } else {
-//                    Log.e("API_ERROR", "Error: ${response.errorBody()?.string()}")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<StatsResponse>, t: Throwable) {
-//                Log.e("API_FAILURE", "Failed to connect to API: ${t.message}")
-//                Toast.makeText(
-//                    this@MainActivity,
-//                    "API connection failed: ${t.message}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        })
+
+        // Khởi tạo DataSaver
+        dataSaver = DataSaver(this)
+
+        // Lưu tất cả dữ liệu vào file JSON
+        lifecycleScope.launch {
+            try {
+                // Lưu dữ liệu từ API vào file
+                webSocketClient.connect()
+                dataSaver.saveAllStatsToFile("stats_data.json")
+
+                // Đọc lại dữ liệu từ file nếu cần
+                val dataFromFile = dataSaver.readDataFromFile("stats_data.json")
+                if (dataFromFile != null) {
+                    // Xử lý dữ liệu đã đọc từ file (nếu cần)
+                    Toast.makeText(this@MainActivity, "Dữ liệu đã được lưu và đọc thành công", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Không tìm thấy dữ liệu trong file", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                // Xử lý lỗi nếu có
+                e.printStackTrace()
+                Toast.makeText(this@MainActivity, "Lỗi khi lấy và lưu dữ liệu", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     }
     override fun onDestroy() {
