@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,8 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.R
-import com.nauh.waterqualitymonitor.data.model.StatsResponse
-import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import com.nauh.waterqualitymonitor.ui.components.TopBar
 import com.nauh.waterqualitymonitor.utils.DataSaver
 import com.nauh.waterqualitymonitor.utils.formatTimestamp
@@ -51,55 +48,54 @@ data class Measurement(
 @Composable
 fun DashboardDetail(navController: NavController, dashboardType: String) {
     var measurements by remember { mutableStateOf(listOf<Measurement>()) }
-    var counter by remember { mutableStateOf(1) } // Biến đếm bắt đầu từ 1
     val dataSaver = DataSaver(LocalContext.current) // Khởi tạo DataSaver
 
     // Truy xuất các giá trị từ strings.xml
-    val turbidityThreshold =
-        stringResource(id = R.string.threshold_tds).toDouble() // Chuyển từ String thành Int
+    val turbidityThreshold = stringResource(id = R.string.threshold_tds).toDouble()
     val temperatureThreshold = stringResource(id = R.string.threshold_temperature).toDouble()
+    val delayTime = stringResource(id = R.string.delay_time).toLong()
+    val fileName = stringResource(id = R.string.file_name)
     val warningColor = colorResource(id = R.color.warning)
-    val relay = colorResource(id = R.color.green)
+    val relayColor = colorResource(id = R.color.green)
 
-    // Đọc và cập nhật dữ liệu mỗi khi cần
+    // Dữ liệu mới được cập nhật mỗi khi có thay đổi
     LaunchedEffect(Unit) {
-        // Đọc dữ liệu từ file
-        val fileName = "stats_data.json" // Đặt tên file
-        val dataFromFile = dataSaver.readDataFromFile(fileName)
+        while (true) {
+            // Đọc và cập nhật dữ liệu từ file sau mỗi `delayTime` mili giây
+            val dataFromFile = dataSaver.readDataFromFile(fileName)
 
-        // Nếu có dữ liệu từ file, sắp xếp và lấy 100 bản ghi mới nhất
-        if (dataFromFile != null) {
-            // Sắp xếp dữ liệu theo thời gian giảm dần và lấy 100 bản ghi mới nhất
-            val latestMeasurements = dataFromFile
-                .sortedByDescending { it.createdAt } // Sắp xếp theo thời gian giảm dần
-                .take(100) // Lấy 100 bản ghi mới nhất
+            if (dataFromFile != null) {
+                // Sắp xếp và lấy 100 bản ghi mới nhất
+                val latestMeasurements = dataFromFile.sortedByDescending { it.createdAt }.take(100)
 
-            // Chuyển đổi dữ liệu sang định dạng Measurement để hiển thị trên giao diện
-            measurements = latestMeasurements.mapIndexed { index, statData ->
-                Measurement(
-                    id = index + 1,
-                    timestamp = statData.createdAt,
-                    value = when (dashboardType) {
-                        "turbidity" -> statData.tds.toDouble()
-                        "temperature" -> statData.temperature.toDouble()
-                        "flow_rate" -> statData.flowRate.toDouble()
-                        "relay" -> statData.relay.toDouble()
-                        else -> 0.0
-                    },
-                    status = when (dashboardType) {
-                        "turbidity" -> if (statData.tds >= turbidityThreshold) "Cao" else "Bình thường"
-                        "temperature" -> if (statData.temperature >= temperatureThreshold) "Nóng" else "Bình thường"
-                        "relay" -> if (statData.relay == 0) "Tắt" else "Bật"
-                        else -> ""
-                    },
-                    color = when (dashboardType) {
-                        "turbidity" -> if (statData.tds >= turbidityThreshold) warningColor else Color.White
-                        "temperature" -> if (statData.temperature >= temperatureThreshold) warningColor else Color.White
-                        "relay" -> if (statData.relay == 0) warningColor else relay
-                        else -> Color.White
-                    }
-                )
+                // Cập nhật measurements
+                measurements = latestMeasurements.mapIndexed { index, statData ->
+                    Measurement(
+                        id = index + 1,
+                        timestamp = statData.createdAt,
+                        value = when (dashboardType) {
+                            "turbidity" -> statData.tds.toDouble()
+                            "temperature" -> statData.temperature.toDouble()
+                            "flow_rate" -> statData.flowRate.toDouble()
+                            "relay" -> statData.relay.toDouble()
+                            else -> 0.0
+                        },
+                        status = when (dashboardType) {
+                            "turbidity" -> if (statData.tds >= turbidityThreshold) "Cao" else "Bình thường"
+                            "temperature" -> if (statData.temperature >= temperatureThreshold) "Nóng" else "Bình thường"
+                            "relay" -> if (statData.relay == 0) "Tắt" else "Bật"
+                            else -> ""
+                        },
+                        color = when (dashboardType) {
+                            "turbidity" -> if (statData.tds >= turbidityThreshold) warningColor else Color.White
+                            "temperature" -> if (statData.temperature >= temperatureThreshold) warningColor else Color.White
+                            "relay" -> if (statData.relay == 0) warningColor else relayColor
+                            else -> Color.White
+                        }
+                    )
+                }
             }
+            delay(delayTime) // Cập nhật theo thời gian delayTime
         }
     }
 
@@ -107,12 +103,8 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
         topBar = {
             TopBar(
                 pageTitle = "Chi tiết $dashboardType",
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                onAccountClick = {
-                    // Hành động khi nhấn vào biểu tượng tài khoản
-                }
+                onBackClick = { navController.popBackStack() },
+                onAccountClick = {}
             )
         }
     ) { paddingValues ->
@@ -123,12 +115,12 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
             color = MaterialTheme.colorScheme.background
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                // Hiển thị bảng dữ liệu
                 MeasurementTable(measurements)
             }
         }
     }
 }
+
 
 
 @Composable
@@ -174,7 +166,10 @@ fun MeasurementTable(measurements: List<Measurement>) {
         // Hiển thị danh sách các hàng với đường phân cách giữa các hàng
         LazyColumn {
             itemsIndexed(measurements) { index, measurement -> // Sử dụng itemsIndexed
-                MeasurementRow(measurement = measurement, index = index + 1) // Đưa chỉ số bắt đầu từ 1
+                MeasurementRow(
+                    measurement = measurement,
+                    index = index + 1
+                ) // Đưa chỉ số bắt đầu từ 1
                 Divider(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                     thickness = 1.dp
@@ -183,7 +178,6 @@ fun MeasurementTable(measurements: List<Measurement>) {
         }
     }
 }
-
 
 
 @Composable

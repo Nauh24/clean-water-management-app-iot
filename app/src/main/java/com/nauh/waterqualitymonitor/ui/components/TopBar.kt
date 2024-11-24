@@ -17,7 +17,7 @@ import com.nauh.waterqualitymonitor.ui.theme.Typography
 @Composable
 fun TopBar(
     pageTitle: String,
-    username: String = "Nauh",
+    username: String = "",
     onBackClick: (() -> Unit)? = null, // Thêm tùy chọn icon trở về
     onAccountClick: () -> Unit
 ) {
