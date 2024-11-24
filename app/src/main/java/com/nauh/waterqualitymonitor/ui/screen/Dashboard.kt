@@ -43,6 +43,7 @@ fun Dashboard(navController: NavController) {
     val warningColor = colorResource(id = R.color.warning)
     val water = colorResource(id = R.color.water)
     val relay = colorResource(id = R.color.green)
+    val gray = colorResource(id = R.color.gray)
 
     // Giao diện màn hình Dashboard
     Scaffold(
@@ -64,7 +65,7 @@ fun Dashboard(navController: NavController) {
                     value = dashboardData.turbidity,
                     route = "dashboard_detail/turbidity",
                     onClick = { navController.navigate("dashboard_detail/turbidity") },
-                    color = if (turbidityValue > turbidityThreshold) warningColor else MaterialTheme.colorScheme.primary,
+                    color = if (turbidityValue > turbidityThreshold) warningColor else gray,
                     textColor = turbidityTextColor
                 )
 
@@ -76,7 +77,7 @@ fun Dashboard(navController: NavController) {
                     value = dashboardData.temperature,
                     route = "dashboard_detail/temperature",
                     onClick = { navController.navigate("dashboard_detail/temperature") },
-                    color = if (temperatureValue > temperatureThreshold) warningColor else MaterialTheme.colorScheme.primary,
+                    color = if (temperatureValue > temperatureThreshold) warningColor else gray,
                     textColor = temperatureTextColor
                 )
 

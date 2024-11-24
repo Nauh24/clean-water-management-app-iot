@@ -22,4 +22,5 @@
     <color name="warning">#f5a19d</color> <!-- Màu cảnh báo -->
     <color name="water">#3CA5DC</color>
     <color name="green">#4CAF50</color>
+    <color name="gray">#D1C9C9</color>
 </resources>
