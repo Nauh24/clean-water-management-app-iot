@@ -27,20 +27,22 @@ class DashboardViewModel(
             // Lấy dữ liệu mới nhất từ file
             while (true) {
                 // Lấy dữ liệu mới nhất từ file
-                val latestData = dataSaver.readLatestDataFromFile("data.json")
+//                val latestData = dataSaver.readLatestDataFromFile("data.json")
+                val latestData = dataSaver.readLatestDataFromFile("stats_data_tmp.json")
+
 
                 // Nếu có dữ liệu mới, cập nhật vào StateFlow
                 latestData?.let {
                     _dashboardData.value = DashboardData(
                         turbidity = "${it.tds} ppm",
                         temperature = "${it.temperature}°C",
-                        flowRate = "${it.flowRate} l/phút",
+                        flowRate = "${it.flowRate} l/min",
                         relayStatus = if (it.relay == 0) "Tắt" else "Bật"
                     )
                 }
 
                 // Sau mỗi lần cập nhật, tạm dừng một chút trước khi lấy dữ liệu lại
-                delay(5000) // Sử dụng delayTime được truyền vào
+                delay(1000) // Sử dụng delayTime được truyền vào
             }
         }
     }

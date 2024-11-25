@@ -210,13 +210,15 @@ class MainActivity : ComponentActivity() {
             try {
                 // Lưu dữ liệu từ API vào file
                 webSocketClient.connect()
-                dataSaver.saveAllStatsToFile("stats_data.json")
+//                dataSaver.saveAllStatsToFile("stats_data_tmp.json")
+                dataSaver.getAllStatsAndSave("stats_data_tmp.json")
 
                 // Đọc lại dữ liệu từ file nếu cần
-                val dataFromFile = dataSaver.readDataFromFile("stats_data.json")
+                val dataFromFile = dataSaver.readDataFromFile("stats_data_tmp.json")
                 if (dataFromFile != null) {
                     // Xử lý dữ liệu đã đọc từ file (nếu cần)
                     Toast.makeText(this@MainActivity, "Dữ liệu đã được lưu và đọc thành công", Toast.LENGTH_SHORT).show()
+                    Log.d("MainActivity", "Dữ liệu hiện có: ${dataFromFile.size}")
                 } else {
                     Toast.makeText(this@MainActivity, "Không tìm thấy dữ liệu trong file", Toast.LENGTH_SHORT).show()
                 }
