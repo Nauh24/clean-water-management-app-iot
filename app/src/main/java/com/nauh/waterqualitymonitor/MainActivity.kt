@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ import com.nauh.waterqualitymonitor.data.network.WebSocketClient
 import com.nauh.waterqualitymonitor.ui.screen.Dashboard
 import com.nauh.waterqualitymonitor.ui.screen.DashboardDetail
 import com.nauh.waterqualitymonitor.ui.screen.Invoice
+import com.nauh.waterqualitymonitor.ui.screen.LoginScreen
 import com.nauh.waterqualitymonitor.ui.screen.Notification
 import com.nauh.waterqualitymonitor.ui.screen.NotificationDetail
 import com.nauh.waterqualitymonitor.ui.screen.Statistics
@@ -48,6 +50,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.log
 import kotlin.properties.Delegates
 
 class MainActivity : ComponentActivity() {
@@ -64,6 +67,7 @@ class MainActivity : ComponentActivity() {
             WaterQualityMonitorTheme {
                 var showBottomBar by rememberSaveable { mutableStateOf(true) }
                 val navController = rememberNavController()
+                var username by remember { mutableStateOf("") }
                 val backStackEntry by navController.currentBackStackEntryAsState()
 
                 showBottomBar = when (backStackEntry?.destination?.route) {
@@ -140,8 +144,14 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxSize()
                                         .padding(innerPadding),
                                 ) {
-                                    Dashboard(navController)
+                                    Dashboard(navController, username = username)
                                 }
+                            }
+                            composable("login") {
+                                LoginScreen(navController = navController, onLoginClick = { loggedInUser ->
+                                    username = loggedInUser
+                                    navController.navigate("dashboard")
+                                })
                             }
                             composable("invoice") {
                                 Surface(

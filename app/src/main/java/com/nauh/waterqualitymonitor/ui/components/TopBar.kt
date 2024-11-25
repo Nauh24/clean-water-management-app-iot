@@ -17,7 +17,7 @@ import com.nauh.waterqualitymonitor.ui.theme.Typography
 @Composable
 fun TopBar(
     pageTitle: String,
-    username: String = "",
+    username: String = "", // Tên tài khoản sẽ được truyền vào từ ngoài
     onBackClick: (() -> Unit)? = null, // Thêm tùy chọn icon trở về
     onAccountClick: () -> Unit
 ) {
@@ -25,7 +25,7 @@ fun TopBar(
         title = {
             TopBarContent(
                 pageTitle = pageTitle,
-                username = username,
+                username = username, // Truyền giá trị tên tài khoản
                 onBackClick = onBackClick, // Truyền hàm callback để hiển thị icon trở về nếu có
                 onAccountClick = onAccountClick
             )
@@ -66,8 +66,15 @@ private fun TopBarContent(
             modifier = Modifier.weight(1f)
         )
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // Sử dụng Row để hiển thị icon và tên tài khoản
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start // Căn lề trái cho tên tài khoản
+        ) {
+            // Icon tài khoản
             AccountIcon(onClick = onAccountClick)
+
+            // Tên tài khoản
             UserName(username = username)
         }
     }

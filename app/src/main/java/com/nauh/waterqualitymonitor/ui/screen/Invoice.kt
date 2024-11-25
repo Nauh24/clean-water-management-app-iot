@@ -34,7 +34,7 @@ fun Invoice(navController: NavController) {
     )
 
     Scaffold(
-        topBar = { TopBar(pageTitle = "Hóa Đơn", onAccountClick = {}) }
+        topBar = { TopBar(pageTitle = "Hóa Đơn", onAccountClick = { navController.navigate("login") }) }
     ) { paddingValues ->
         Surface(
             modifier = Modifier

@@ -104,7 +104,7 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
             TopBar(
                 pageTitle = "Chi tiết $dashboardType",
                 onBackClick = { navController.popBackStack() },
-                onAccountClick = {}
+                onAccountClick = { navController.navigate("login") }
             )
         }
     ) { paddingValues ->

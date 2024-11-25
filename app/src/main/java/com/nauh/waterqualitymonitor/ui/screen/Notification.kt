@@ -27,7 +27,7 @@ fun Notification(navController: NavController, viewModel: NotificationViewModel 
             TopBar(
                 pageTitle = "Thông báo",
                 onAccountClick = {
-                    // Xử lý sự kiện khi nhấn vào tài khoản nếu cần
+                    navController.navigate("login")
                 }
             )
         },

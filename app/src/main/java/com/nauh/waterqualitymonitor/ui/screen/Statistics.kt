@@ -29,7 +29,7 @@ fun Statistics(navController: NavController) {
             TopBar(
                 pageTitle = "Thống kê",
                 onAccountClick = {
-                    // Hành động khi nhấn vào icon tài khoản
+                    navController.navigate("login")
                 }
             )
         }

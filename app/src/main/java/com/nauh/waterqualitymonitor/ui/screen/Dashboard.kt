@@ -29,7 +29,7 @@ import com.nauh.waterqualitymonitor.viewmodels.DashboardViewModel
 import com.nauh.waterqualitymonitor.viewmodels.DashboardViewModelFactory
 
 @Composable
-fun Dashboard(navController: NavController) {
+fun Dashboard(navController: NavController, username: String) {
     // Thu thập dữ liệu từ ViewModel
     val context = LocalContext.current
     val viewModel: DashboardViewModel = viewModel(factory = DashboardViewModelFactory(context))
@@ -47,7 +47,7 @@ fun Dashboard(navController: NavController) {
     // Giao diện màn hình Dashboard
     Scaffold(
         topBar = {
-            TopBar(pageTitle = "Tổng quan", onAccountClick = {})
+            TopBar(pageTitle = "Tổng quan", onAccountClick = { navController.navigate("login") }, username = username)
         },
         content = { paddingValues ->
             Column(

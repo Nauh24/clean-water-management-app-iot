@@ -21,7 +21,7 @@ fun NotificationDetail(navController: NavController, notificationId: Int) {
                 pageTitle = "Chi tiết thông báo",
                 username = "Nauh",
                 onAccountClick = {
-                    // Điều hướng khi nhấn vào tài khoản nếu cần
+                    navController.navigate("login")
                 }
             )
         },
