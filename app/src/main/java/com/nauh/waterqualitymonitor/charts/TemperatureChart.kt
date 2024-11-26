@@ -14,32 +14,18 @@ import com.github.mikephil.charting.data.LineDataSet
 
 @Composable
 fun TemperatureChart() {
-    AndroidView(
-        modifier = Modifier.fillMaxWidth(),
-        factory = { context: Context -> LineChart(context) },
-        update = { chart ->
-            // Dữ liệu mẫu cho nhiệt độ
-            val entries = listOf(
-                Entry(0f, 25f),  // (time, temperature)
-                Entry(1f, 27f),
-                Entry(2f, 26f),
-                Entry(3f, 28f),
-                Entry(4f, 30f)
-            )
+    val temperatureData = listOf(
+        0f to 25f, // (time, temperature)
+        1f to 27f,
+        2f to 26f,
+        3f to 28f,
+        4f to 30f
+    )
 
-            val dataSet = LineDataSet(entries, "Temperature (°C)")
-            dataSet.color = Color.RED
-            dataSet.valueTextColor = Color.BLACK
-
-            val lineData = LineData(dataSet)
-            chart.data = lineData
-
-            chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-            chart.axisLeft.setDrawGridLines(false)
-            chart.axisRight.isEnabled = false
-
-            chart.description.isEnabled = false
-            chart.invalidate()
-        }
+    LineChartComposable(
+        data = temperatureData,
+        chartLabel = "Temperature (°C)",
+        lineColor = Color.RED
     )
 }
+

@@ -66,7 +66,7 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
 
             if (dataFromFile != null) {
                 // Sắp xếp và lấy 100 bản ghi mới nhất
-                val latestMeasurements = dataFromFile.sortedByDescending { it.createdAt }.take(100)
+                val latestMeasurements = dataFromFile.take(100)
 
                 // Cập nhật measurements
                 measurements = latestMeasurements.mapIndexed { index, statData ->

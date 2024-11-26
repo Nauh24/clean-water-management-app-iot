@@ -38,8 +38,8 @@ class NotificationViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     response.body()?.let {
                         _alerts.value = it.metadata
-                            .sortedByDescending { alert -> alert.createdAt }
-                            .take(100)
+                            .takeLast(30) // Lấy 30 giá trị cuối cùng
+//                            .reversed()   // Đảo ngược thứ tự
                     }
                 } else {
                     Log.e("NotificationViewModel", "Error response: ${response.code()}")
@@ -51,6 +51,8 @@ class NotificationViewModel : ViewModel() {
             }
         })
     }
+
+
 
     private fun handleNewAlert(message: String) {
         try {

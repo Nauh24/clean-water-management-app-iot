@@ -1,23 +1,32 @@
 package com.nauh.waterqualitymonitor.ui.screen
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -101,6 +110,11 @@ fun Dashboard(navController: NavController, username: String) {
                     textColor = Color.White // Giữ màu chữ là trắng
                 )
 
+                // Hiển thị các nút điều khiển nếu là admin
+                if (username == stringResource(id = R.string.admin)) {
+                    ControlWaterButtons()
+                }
+
                 // Log dữ liệu
                 Log.d("Dashboard", "Turbidity: ${dashboardData.turbidity}")
                 Log.d("Dashboard", "Temperature: ${dashboardData.temperature}")
@@ -111,7 +125,83 @@ fun Dashboard(navController: NavController, username: String) {
     )
 }
 
+@Composable
+fun ControlWaterButtons() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp), // Tạo khoảng cách giữa khung chứa và thẻ phía trên
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Khung chứa các nút
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp), // Lề hai bên của khung chứa
+            elevation = CardDefaults.cardElevation(4.dp), // Hiệu ứng nổi
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp), // Padding bên trong khung
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Hàng chứa nút "On" và "Off"
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    ControlButton(
+                        text = "On",
+                        backgroundColor = MaterialTheme.colorScheme.primary,
+                        onClick = { /* Handle On Action */ }
+                    )
+                    ControlButton(
+                        text = "Off",
+                        backgroundColor = MaterialTheme.colorScheme.secondary,
+                        onClick = { /* Handle Off Action */ }
+                    )
+                }
 
+                Spacer(modifier = Modifier.height(12.dp)) // Khoảng cách giữa các hàng
+
+                // Nút "Auto" nằm chính giữa
+                ControlButton(
+                    text = "Auto",
+                    backgroundColor = MaterialTheme.colorScheme.tertiary,
+                    onClick = { /* Handle Auto Action */ },
+                    modifier = Modifier.fillMaxWidth(0.5f) // Rộng 50% khung chứa
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ControlButton(
+    text: String,
+    backgroundColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(width = 80.dp, height = 36.dp) // Kích thước nhỏ hơn
+            .clickable(onClick = onClick)
+            .background(
+                color = backgroundColor,
+                shape = MaterialTheme.shapes.small // Bo góc nhẹ
+            ),
+        contentAlignment = Alignment.Center // Căn chữ vào giữa nút
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = Color.White, // Màu chữ trắng
+                fontWeight = FontWeight.Bold // Chữ đậm
+            )
+        )
+    }
+}
 
 
 @Composable

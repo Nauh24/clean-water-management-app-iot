@@ -2,17 +2,12 @@ package com.nauh.waterqualitymonitor.utils
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.ui.res.stringResource
 import com.google.gson.Gson
-import com.nauh.waterqualitymonitor.R
 import com.nauh.waterqualitymonitor.data.model.StatData
 import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.Random
-import java.util.UUID
 
 class DataSaver(private val context: Context) {
 
@@ -115,65 +110,84 @@ class DataSaver(private val context: Context) {
             mutableListOf()
         }
 
-        val existingIds = existingData.map { it._id }.toHashSet() // Tập hợp các ID đã tồn tại
 
         while (true) {
-            // Gọi API và lấy dữ liệu
-            val response = withContext(Dispatchers.IO) {
+            val firstExistingDataId =
+                existingData.lastOrNull()?.let { it._id } // ID của phần tử đầu tiên trong danh sách
+
+            // Gọi API để lấy tổng số trang (totalPages)
+            val initialResponse = withContext(Dispatchers.IO) {
                 RetrofitClient.apiService.getDatas(page = currentPage, pageSize = 20).execute()
             }
 
-            if (response.isSuccessful) {
-                val body = response.body()
+            if (initialResponse.isSuccessful) {
+                val body = initialResponse.body()
                 if (body != null) {
                     val metadata = body.metadata
-                    val data = metadata?.data
+                    val totalPages = metadata?.meta?.totalPages ?: 1 // Lấy tổng số trang
 
-                    if (data != null) {
-                        val filteredData = data.filter { it.relay != null }
+                    // Gọi API để lấy dữ liệu trang cuối cùng
+                    val finalPageResponse = withContext(Dispatchers.IO) {
+                        RetrofitClient.apiService.getDatas(page = totalPages, pageSize = 20)
+                            .execute()
+                    }
+                    Log.d("DataSaver", "Total pages: $totalPages")
 
-                        // Loại bỏ các dữ liệu đã tồn tại bằng cách kiểm tra ID
-                        val newData = filteredData.filter { it._id !in existingIds }
-                        Log.d("DataSaver", "New data found: ${newData.size}")
+                    if (finalPageResponse.isSuccessful) {
+                        val finalPageBody = finalPageResponse.body()
+                        if (finalPageBody != null) {
+                            val finalData = finalPageBody.metadata?.data
 
-                        if (newData.isNotEmpty()) {
-                            // Cập nhật danh sách hiện tại và tập hợp ID
-                            existingData.addAll(newData)
-                            existingIds.addAll(newData.map { it._id })
+                            if (finalData != null && finalData.isNotEmpty()) {
+                                // Lấy phần tử cuối cùng trong dữ liệu trang cuối cùng
+                                val latestData = finalData.last()
 
-                            // Lưu vào file JSON
-                            saveDataToFile(existingData, fileName)
-                            Log.d("DataSaver", "New data saved to file")
-                        }
+                                // Kiểm tra nếu dữ liệu chưa tồn tại trong danh sách so với phần tử đầu tiên
+                                Log.d("DataSaver", "First existing data ID: $firstExistingDataId")
+                                Log.d("DataSaver", "Latest data ID: ${latestData._id}")
+                                if (firstExistingDataId != latestData._id) {
+                                    // Cập nhật danh sách hiện tại
+                                    existingData.add(latestData)
 
-                        // Kiểm tra có tiếp tục tải không
-                        val totalPages = metadata.meta?.totalPages ?: 1
-                        if (currentPage < totalPages) {
-                            currentPage++
+                                    // Lưu vào file JSON
+                                    saveDataToFile(existingData, fileName)
+                                    Log.d(
+                                        "DataSaver",
+                                        "New latest data saved to file from last page"
+                                    )
+                                } else {
+                                    Log.d(
+                                        "DataSaver",
+                                        "Latest data matches the first data in the list, skipping save"
+                                    )
+                                }
+
+                            } else {
+                                Log.d("DataSaver", "No data found on the last page")
+                            }
                         } else {
-                            break
+                            Log.e("DataSaver", "Failed to fetch data from the last page")
                         }
                     } else {
-                        break // Không có dữ liệu
+                        Log.e(
+                            "DataSaver",
+                            "Failed to fetch data for last page: ${finalPageResponse.code()}"
+                        )
                     }
                 } else {
-                    break // Body null
+                    Log.e("DataSaver", "Body is null in initial response")
                 }
             } else {
-                Log.e("DataSaver", "API Error: ${response.code()}")
-                break
+                Log.e("DataSaver", "API Error: ${initialResponse.code()}")
             }
         }
     }
 
 
-
-
-
     // Phương thức để sắp xếp dữ liệu theo thời gian giảm dần
-    fun sortDataByTimestamp(data: List<StatData>): List<StatData> {
-        return data.sortedByDescending { it.createdAt }
-    }
+//    fun sortDataByTimestamp(data: List<StatData>): List<StatData> {
+//        return data.sortedByDescending { it.createdAt }
+//    }
 
     // Phương thức lưu dữ liệu vào file JSON
     fun saveDataToFile(data: List<StatData>, fileName: String) {
@@ -214,7 +228,7 @@ class DataSaver(private val context: Context) {
                 val gson = Gson()
                 val data = gson.fromJson(json, Array<StatData>::class.java).toList()
                 Log.d("DataSaver", "Data read from file: ${data.size} records")
-                return data
+                return data.reversed()
             } else {
                 Log.d("DataSaver", "File not found: $fileName")
             }
@@ -234,7 +248,7 @@ class DataSaver(private val context: Context) {
             val dataList = gson.fromJson(json, Array<StatData>::class.java).toList()
 
             // Nếu danh sách không rỗng, sắp xếp theo thời gian giảm dần và lấy phần tử đầu tiên (mới nhất)
-            return dataList.sortedByDescending { it.createdAt }.firstOrNull()
+            return dataList.lastOrNull()
         }
         return null
     }
