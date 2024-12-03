@@ -1,5 +1,6 @@
 package com.nauh.waterqualitymonitor.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,9 +65,11 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
             // Đọc và cập nhật dữ liệu từ file sau mỗi `delayTime` mili giây
             val dataFromFile = dataSaver.readDataFromFile(fileName)
 
+            Log.d("DashboardDetail", "Data from file: $dataFromFile")
             if (dataFromFile != null) {
+                Log.d("DashboardDetail", "Data from file: $dataFromFile")
                 // Sắp xếp và lấy 100 bản ghi mới nhất
-                val latestMeasurements = dataFromFile.take(100)
+                val latestMeasurements = dataFromFile.takeLast(100).reversed()
 
                 // Cập nhật measurements
                 measurements = latestMeasurements.mapIndexed { index, statData ->
@@ -74,21 +77,21 @@ fun DashboardDetail(navController: NavController, dashboardType: String) {
                         id = index + 1,
                         timestamp = statData.createdAt,
                         value = when (dashboardType) {
-                            "turbidity" -> statData.tds.toDouble()
-                            "temperature" -> statData.temperature.toDouble()
-                            "flow_rate" -> statData.flowRate.toDouble()
+                            "turbidity" -> statData.tds
+                            "temperature" -> statData.temperature
+                            "flow_rate" -> statData.flowRate
                             "relay" -> statData.relay.toDouble()
                             else -> 0.0
                         },
                         status = when (dashboardType) {
-                            "turbidity" -> if (statData.tds >= turbidityThreshold) "Cao" else "Bình thường"
-                            "temperature" -> if (statData.temperature >= temperatureThreshold) "Nóng" else "Bình thường"
+                            "turbidity" -> if (statData.tds > turbidityThreshold) "Cao" else "Bình thường"
+                            "temperature" -> if (statData.temperature > temperatureThreshold) "Nóng" else "Bình thường"
                             "relay" -> if (statData.relay == 0) "Tắt" else "Bật"
                             else -> ""
                         },
                         color = when (dashboardType) {
-                            "turbidity" -> if (statData.tds >= turbidityThreshold) warningColor else Color.White
-                            "temperature" -> if (statData.temperature >= temperatureThreshold) warningColor else Color.White
+                            "turbidity" -> if (statData.tds > turbidityThreshold) warningColor else Color.White
+                            "temperature" -> if (statData.temperature > temperatureThreshold) warningColor else Color.White
                             "relay" -> if (statData.relay == 0) warningColor else relayColor
                             else -> Color.White
                         }

@@ -1,11 +1,10 @@
 package com.nauh.waterqualitymonitor.data.model
 
-import com.google.gson.annotations.SerializedName
-
 data class Alert(
-    @SerializedName("_id") val id: String,
-    @SerializedName("alert_type") val alertType: String,
-    @SerializedName("message") val message: String,
-    @SerializedName("createdAt") val createdAt: String
+//    val id: String = "", // Có thể sinh ngẫu nhiên nếu không nhận được
+//    val alertType: String, // Ánh xạ từ `alert_type`
+    val message: String,
+    val createdAt: String = "" // Gán thời gian hiện tại nếu không có
 )
+
 

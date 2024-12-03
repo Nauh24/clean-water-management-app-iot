@@ -1,6 +1,5 @@
 package com.nauh.waterqualitymonitor.viewmodels
 
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,12 +23,9 @@ class DashboardViewModel(
 
     private fun loadData() {
         viewModelScope.launch {
-            // Lấy dữ liệu mới nhất từ file
             while (true) {
-                // Lấy dữ liệu mới nhất từ file
-//                val latestData = dataSaver.readLatestDataFromFile("data.json")
-                val latestData = dataSaver.readLatestDataFromFile("stats_data_tmp.json")
-
+                // Đọc dữ liệu mới nhất từ file
+                val latestData = dataSaver.readLatestDataFromFile("data_tmp.json")
 
                 // Nếu có dữ liệu mới, cập nhật vào StateFlow
                 latestData?.let {

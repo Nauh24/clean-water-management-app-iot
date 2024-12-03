@@ -3,6 +3,9 @@ accompanistPager = "0.29.1-alpha"
 agp = "8.6.1"
 composeCharts = "1.0.0"
 converterGson = "2.9.0"
+eclipseOrgEclipsePahoClientMqttv3 = "1.2.5"
+javaWebsocket = "1.5.2"
+koinAndroidxCompose = "3.1.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -15,6 +18,8 @@ material = "1.12.0"
 materialVersion = "1.9.0"
 mpandroidchart = "v3.1.0"
 navigationCompose = "2.8.3"
+okhttp = "4.9.3"
+orgEclipsePahoAndroidService = "1.1.1"
 socketIoClient = "2.0.1"
 squareupRetrofit = "2.9.0"
 
@@ -23,6 +28,8 @@ accompanist-pager = { module = "com.google.accompanist:accompanist-pager", versi
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 compose-charts = { module = "com.patrykandpatrick.vico:compose-charts", version.ref = "composeCharts" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+eclipse-org-eclipse-paho-client-mqttv3 = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "eclipseOrgEclipsePahoClientMqttv3" }
+java-websocket = { module = "org.java-websocket:Java-WebSocket", version.ref = "javaWebsocket" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -37,9 +44,12 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material-v190 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+org-eclipse-paho-android-service = { module = "org.eclipse.paho:org.eclipse.paho.android.service", version.ref = "orgEclipsePahoAndroidService" }
 socket-io-client = { module = "io.socket:socket.io-client", version.ref = "socketIoClient" }
 squareup-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "squareupRetrofit" }
 

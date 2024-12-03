@@ -28,14 +28,22 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nauh.waterqualitymonitor.R
+import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import com.nauh.waterqualitymonitor.ui.components.TopBar
 import com.nauh.waterqualitymonitor.ui.theme.Shapes
 import com.nauh.waterqualitymonitor.ui.theme.Typography
 import com.nauh.waterqualitymonitor.viewmodels.DashboardViewModel
 import com.nauh.waterqualitymonitor.viewmodels.DashboardViewModelFactory
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 @Composable
 fun Dashboard(navController: NavController, username: String) {
@@ -127,54 +135,115 @@ fun Dashboard(navController: NavController, username: String) {
 
 @Composable
 fun ControlWaterButtons() {
-    Column(
+    // Mặc định nút "On" được chọn
+    val (selectedButton, setSelectedButton) = androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf("On")
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 24.dp), // Tạo khoảng cách giữa khung chứa và thẻ phía trên
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp),
+        contentAlignment = Alignment.Center // Đặt Card vào giữa Box
     ) {
-        // Khung chứa các nút
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp), // Lề hai bên của khung chứa
-            elevation = CardDefaults.cardElevation(4.dp), // Hiệu ứng nổi
+                .padding(horizontal = 16.dp), // Lề ngang của Card
+            elevation = CardDefaults.cardElevation(4.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp), // Padding bên trong khung
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp), // Khoảng cách trên dưới của hàng nút
+                horizontalArrangement = Arrangement.SpaceEvenly, // Các nút cách đều nhau
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Hàng chứa nút "On" và "Off"
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    ControlButton(
-                        text = "On",
-                        backgroundColor = MaterialTheme.colorScheme.primary,
-                        onClick = { /* Handle On Action */ }
-                    )
-                    ControlButton(
-                        text = "Off",
-                        backgroundColor = MaterialTheme.colorScheme.secondary,
-                        onClick = { /* Handle Off Action */ }
-                    )
-                }
+                // Nút "On"
+                ControlButton(
+                    text = "On",
+                    backgroundColor = if (selectedButton == "On") MaterialTheme.colorScheme.primary else Color.Gray,
+                    onClick = {
+                        setSelectedButton("On")
+                        sendRelayCommand("on")
+                    }
+                )
 
-                Spacer(modifier = Modifier.height(12.dp)) // Khoảng cách giữa các hàng
+                // Nút "Off"
+                ControlButton(
+                    text = "Off",
+                    backgroundColor = if (selectedButton == "Off") MaterialTheme.colorScheme.secondary else Color.Gray,
+                    onClick = {
+                        setSelectedButton("Off")
+                        sendRelayCommand("off")
+//                        Log.d("RelayCommand", "Sending relay command: off")
+                    }
+                )
 
-                // Nút "Auto" nằm chính giữa
+                // Nút "Auto"
                 ControlButton(
                     text = "Auto",
-                    backgroundColor = MaterialTheme.colorScheme.tertiary,
-                    onClick = { /* Handle Auto Action */ },
-                    modifier = Modifier.fillMaxWidth(0.5f) // Rộng 50% khung chứa
+                    backgroundColor = if (selectedButton == "Auto") MaterialTheme.colorScheme.tertiary else Color.Gray,
+                    onClick = {
+                        setSelectedButton("Auto")
+                        sendRelayCommand("auto")
+                    }
                 )
             }
         }
     }
 }
+
+
+
+//@OptIn(DelicateCoroutinesApi::class)
+//fun sendRelayCommand(command: String) {
+//    val json = mapOf("relay" to command)
+//
+//    // Log thông báo gửi lệnh
+//    Log.d("RelayCommand", "Sending relay command: $command")
+//
+//    // Gọi RetrofitClient để gửi lệnh tới backend
+//    GlobalScope.launch(Dispatchers.IO) {
+//        RetrofitClient.sendRelayCommand(json)
+//    }
+//}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun sendRelayCommand(command: String) {
+    // Tạo chuỗi JSON stringified
+    val jsonString = JSONObject(mapOf("relay" to command)).toString()
+
+    // Log thông báo gửi lệnh
+    Log.d("RelayCommand", "Sending relay command: $jsonString")
+
+    // Gọi RetrofitClient để gửi lệnh tới backend
+    GlobalScope.launch(Dispatchers.IO) { // Sử dụng Coroutine đúng cách
+        try {
+            RetrofitClient.sendRelayCommand(jsonString)
+        } catch (e: Exception) {
+            Log.e("RelayCommand", "Error sending relay command: ${e.message}")
+        }
+    }
+}
+//val lifecycleScope = LocalLifecycleOwner.current.lifecycleScope
+//
+//fun sendRelayCommand(command: String) {
+//    val jsonString = JSONObject(mapOf("relay" to command)).toString()
+//
+//    lifecycleScope.launch(Dispatchers.IO) {
+//        try {
+//            RetrofitClient.sendRelayCommand(jsonString)
+//            Log.d("RelayCommand", "Command sent successfully: $command")
+//        } catch (e: Exception) {
+//            Log.e("RelayCommand", "Failed to send command: ${e.message}")
+//        }
+//    }
+//}
+
+
+
 
 @Composable
 fun ControlButton(
@@ -185,23 +254,25 @@ fun ControlButton(
 ) {
     Box(
         modifier = modifier
-            .size(width = 80.dp, height = 36.dp) // Kích thước nhỏ hơn
+            .size(width = 100.dp, height = 40.dp) // Kích thước nút cố định
             .clickable(onClick = onClick)
             .background(
                 color = backgroundColor,
                 shape = MaterialTheme.shapes.small // Bo góc nhẹ
             ),
-        contentAlignment = Alignment.Center // Căn chữ vào giữa nút
+        contentAlignment = Alignment.Center // Căn giữa chữ trong nút
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = Color.White, // Màu chữ trắng
-                fontWeight = FontWeight.Bold // Chữ đậm
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
         )
     }
 }
+
+
 
 
 @Composable

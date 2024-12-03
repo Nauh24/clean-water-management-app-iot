@@ -76,6 +76,14 @@ dependencies {
     implementation (libs.converter.gson)
 
     implementation (libs.socket.io.client)  // Thư viện Socket.IO cho Android
+    implementation (libs.okhttp)
+    implementation (libs.java.websocket)
+
+    implementation (libs.eclipse.org.eclipse.paho.client.mqttv3)
+    implementation (libs.org.eclipse.paho.android.service)
+    implementation (libs.eclipse.org.eclipse.paho.client.mqttv3)
+    implementation (libs.koin.androidx.compose)
+
 //    implementation (libs.compose.charts)
 
 }

@@ -1,77 +1,107 @@
 package com.nauh.waterqualitymonitor.data.network
 
+import android.content.Context
 import android.util.Log
-import io.socket.client.IO
-import io.socket.client.Socket
+import com.nauh.waterqualitymonitor.data.model.Alert
+import com.nauh.waterqualitymonitor.data.model.StatData
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
+import org.json.JSONObject
+import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-// Singleton để nhận các cập nhật từ WebSocket
 object WebSocketReceiver {
-    var onUpdateReceived: (String) -> Unit = {}
 
-    fun setReceiver(onUpdate: (String) -> Unit) {
-        onUpdateReceived = onUpdate
+    private var webSocketClient: WebSocketClient? = null
+
+    // Hàm ánh xạ JSON sang StatData
+    fun mapToStatData(jsonObject: JSONObject): StatData {
+        val createdAt =
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(Date())
+        return StatData(
+//            _id = "",
+            temperature = jsonObject.optDouble("temperature", 0.0),
+            tds = jsonObject.optDouble("tds", 0.0),
+            flowRate = jsonObject.optDouble("flowRate", 0.0),
+            relay = jsonObject.optInt("pumpState", 0),
+            createdAt = createdAt,
+//            __v = 0
+        )
     }
 
-    // Mở kết nối WebSocket
-    fun connect() {
-        WebSocketClient().connect()
+    fun mapToAlert(payload: JSONObject): Alert {
+//        val id = "" // Sinh ngẫu nhiên hoặc để trống
+//        val alertType = payload.optString("alert_type", "")
+        val message = payload.optString("message", "No message")
+        val createdAt =
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(Date())
+
+        return Alert(
+//            alertType = alertType,
+            message = message,
+            createdAt = createdAt
+        )
     }
 
-    // Ngắt kết nối WebSocket
-    fun disconnect() {
-        WebSocketClient().disconnect()
-    }
-}
+    /**
+     * Kết nối tới WebSocket server.
+     * @param context Context từ Activity.
+     * @param serverUrl Địa chỉ WebSocket server.
+     * @param onMessageReceived Callback xử lý khi nhận được dữ liệu.
+     */
+    fun connect(context: Context, serverUrl: String, onMessageReceived: (String) -> Unit) {
+        Log.d("WebSocketReceiver", "Connecting to WebSocket server: $serverUrl")
+        if (webSocketClient == null) {
+            Log.d("WebSocketReceiver", "Creating new WebSocket client")
+            webSocketClient = object : WebSocketClient(URI(serverUrl)) {
+                override fun onOpen(handshakedata: ServerHandshake?) {
+                    Log.d("WebSocketReceiver", "Connected to WebSocket server")
+                    send("Hello from Android Client!")
+                }
 
-class WebSocketClient {
+                override fun onMessage(message: String?) {
+                    if (message != null) {
+                        Log.d("WebSocketReceiver", "Message received: $message")
+                        onMessageReceived(message) // Gọi callback khi nhận dữ liệu
+                    }
+                }
 
-    private var socket: Socket? = null
+                //                override fun onClose(code: Int, reason: String?, remote: Boolean) {
+//                    Log.d("WebSocketReceiver", "WebSocket disconnected: $reason")
+//                    // Thử kết nối lại nếu cần thiết
+//                    if (!remote) {
+//                        webSocketClient?.reconnect()
+//                    }
+//                }
+                override fun onClose(code: Int, reason: String?, remote: Boolean) {
+                    Log.d("WebSocketReceiver", "WebSocket disconnected: $reason")
+                    if (!remote) {
+                        Log.d("WebSocketReceiver", "Attempting to reconnect after delay...")
+                        GlobalScope.launch {
+                            kotlinx.coroutines.delay(5000) // Chờ 5 giây trước khi kết nối lại
+                            connect(context, serverUrl, onMessageReceived)
+                        }
+                    }
+                }
 
-    // Kết nối WebSocket
-    fun connect() {
-        try {
-            // Nếu socket đã kết nối rồi, không kết nối lại
-            if (socket?.connected() == true) {
-                return
+
+                override fun onError(ex: Exception?) {
+                    Log.e("WebSocketReceiver", "WebSocket error: ${ex?.message}")
+                }
             }
-
-            socket = IO.socket("https://iot-backend-project.onrender.com") // URL của server WebSocket
-            socket?.connect()
-
-            // Lắng nghe sự kiện kết nối và ngắt kết nối
-            socket?.on(Socket.EVENT_CONNECT) {
-                Log.d("WebSocket", "Connected to server")
-            }
-
-            socket?.on(Socket.EVENT_DISCONNECT) {
-                Log.d("WebSocket", "Disconnected from server")
-            }
-
-            // Lắng nghe sự kiện "message" từ server
-            socket?.on("message") { args ->
-                val message = args[0] as String
-                Log.d("WebSocket", "Received message: $message")
-                // Gửi dữ liệu message tới ViewModel
-                WebSocketReceiver.onUpdateReceived(message)
-            }
-
-            // Lắng nghe sự kiện "update" từ server (thông báo mới)
-            socket?.on("update") { args ->
-                val updateMessage = args[0] as String
-                Log.d("WebSocket", "Received update: $updateMessage")
-                // Gửi dữ liệu update tới ViewModel
-                WebSocketReceiver.onUpdateReceived(updateMessage)
-            }
-
-        } catch (e: Exception) {
-            Log.e("WebSocket", "Error: ${e.message}")
-            e.printStackTrace()
         }
+        webSocketClient?.connect()
     }
 
-    // Ngắt kết nối WebSocket
+    /**
+     * Ngắt kết nối WebSocket.
+     */
     fun disconnect() {
-        socket?.disconnect()
-        Log.d("WebSocket", "WebSocket disconnected")
+        webSocketClient?.close()
+        webSocketClient = null
     }
 }

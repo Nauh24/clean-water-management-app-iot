@@ -1,72 +1,56 @@
-package com.nauh.waterqualitymonitor.viewmodels
 
-import android.util.Log
+package com.nauh.waterqualitymonitor.viewmodels
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.nauh.waterqualitymonitor.data.model.Alert
-import com.nauh.waterqualitymonitor.data.model.AlertResponse
 import com.nauh.waterqualitymonitor.data.network.WebSocketReceiver
-import com.nauh.waterqualitymonitor.data.network.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.google.gson.Gson
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import org.json.JSONObject
 
-class NotificationViewModel : ViewModel() {
+class NotificationViewModel(context: Context) : ViewModel() {
+    private val _sensorAlerts = MutableStateFlow<List<Alert>>(emptyList())
+    val sensorAlerts: StateFlow<List<Alert>> = _sensorAlerts
 
-    private val _alerts = MutableStateFlow<List<Alert>>(emptyList())
-    val alerts: StateFlow<List<Alert>> = _alerts
+    private val _alertNotifications = MutableStateFlow<List<Alert>>(emptyList())
+    val alertNotifications: StateFlow<List<Alert>> = _alertNotifications
+
+    val isWebSocketConnected = MutableStateFlow(false)
 
     init {
-        // Khởi tạo WebSocket ngay khi ViewModel được khởi tạo
-        WebSocketReceiver.setReceiver { message ->
-            handleNewAlert(message)
-        }
+        WebSocketReceiver.connect(
+            context,
+            "ws://192.168.1.13:4000",
+            onMessageReceived = { message ->
+                // Parse dữ liệu JSON
+                val jsonObject = JSONObject(message)
+                val topic = jsonObject.getString("topic")
+                val payload = jsonObject.getJSONObject("payload")
 
-        // Đảm bảo WebSocket luôn kết nối
-        WebSocketReceiver.connect()  // Đảm bảo WebSocket luôn hoạt động
+                val alert = Alert(
+//                    id = payload.getString("_id"),
+//                    alertType = payload.getString("alertType"),
+                    message = payload.getString("message"),
+                    createdAt = payload.getString("createdAt")
+                )
 
-        // Lấy dữ liệu từ API ngay khi khởi động ứng dụng
-        fetchAlerts()
-    }
-
-    private fun fetchAlerts() {
-        // Gọi API để lấy dữ liệu thông báo ban đầu nếu cần
-        RetrofitClient.apiService.getAlerts().enqueue(object : Callback<AlertResponse> {
-            override fun onResponse(call: Call<AlertResponse>, response: Response<AlertResponse>) {
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        _alerts.value = it.metadata
-                            .takeLast(30) // Lấy 30 giá trị cuối cùng
-//                            .reversed()   // Đảo ngược thứ tự
+                // Lọc dữ liệu theo topic
+                when (topic) {
+                    "sensorData" -> {
+                        val currentAlerts = _sensorAlerts.value.toMutableList()
+                        currentAlerts.add(alert)
+                        _sensorAlerts.value = currentAlerts
                     }
-                } else {
-                    Log.e("NotificationViewModel", "Error response: ${response.code()}")
+                    "alert" -> {
+                        val currentNotifications = _alertNotifications.value.toMutableList()
+                        currentNotifications.add(alert)
+                        _alertNotifications.value = currentNotifications
+                    }
                 }
-            }
-
-            override fun onFailure(call: Call<AlertResponse>, t: Throwable) {
-                Log.e("NotificationViewModel", "API call failed: ${t.message}")
-            }
-        })
-    }
-
-
-
-    private fun handleNewAlert(message: String) {
-        try {
-            // Parse thông báo mới từ WebSocket và thêm vào danh sách
-            val newAlert = Gson().fromJson(message, Alert::class.java)
-            _alerts.value = listOf(newAlert) + _alerts.value // Thêm thông báo mới vào đầu danh sách
-        } catch (e: Exception) {
-            Log.e("NotificationViewModel", "Error parsing message: ${e.message}")
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        // Khi ViewModel bị hủy, ngắt kết nối WebSocket
-        WebSocketReceiver.disconnect()
+            },
+//            onConnectionChanged = { connected ->
+//                isWebSocketConnected.value = connected
+//            }
+        )
     }
 }

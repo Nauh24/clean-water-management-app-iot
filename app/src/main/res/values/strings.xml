@@ -4,10 +4,10 @@
     <string name="threshold_tds">500</string> <!-- Ngưỡng TDS -->
     <string name="delay_time">1000</string>
 <!--    <string name="file_name">data.json</string>-->
-    <string name="file_name">stats_data_tmp.json</string>
+    <string name="file_name">data_tmp.json</string>
     <string name="user">user</string>
     <string name="user_password">123</string>
     <string name="admin">admin</string>
     <string name="admin_password">1234</string>
-
+    <string name="alert_file_name">alerts_data.json</string>
 </resources>

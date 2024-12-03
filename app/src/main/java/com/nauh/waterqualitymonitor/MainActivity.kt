@@ -31,22 +31,29 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
 import com.nauh.waterqualitymonitor.data.model.StatsResponse
+import com.nauh.waterqualitymonitor.data.network.MQTTClient
 import com.nauh.waterqualitymonitor.data.network.RetrofitClient
-import com.nauh.waterqualitymonitor.data.network.WebSocketClient
+import com.nauh.waterqualitymonitor.data.network.WebSocketReceiver
+import com.nauh.waterqualitymonitor.data.network.WebSocketReceiver.mapToAlert
+import com.nauh.waterqualitymonitor.data.network.WebSocketReceiver.mapToStatData
 import com.nauh.waterqualitymonitor.ui.screen.Dashboard
 import com.nauh.waterqualitymonitor.ui.screen.DashboardDetail
 import com.nauh.waterqualitymonitor.ui.screen.Invoice
 import com.nauh.waterqualitymonitor.ui.screen.LoginScreen
 import com.nauh.waterqualitymonitor.ui.screen.Notification
-import com.nauh.waterqualitymonitor.ui.screen.NotificationDetail
+//import com.nauh.waterqualitymonitor.ui.screen.NotificationDetail
 import com.nauh.waterqualitymonitor.ui.screen.Statistics
 import com.nauh.waterqualitymonitor.ui.theme.TopAppBarBackground
 import com.nauh.waterqualitymonitor.ui.theme.WaterQualityMonitorTheme
+import com.nauh.waterqualitymonitor.utils.AlertSaver
 import com.nauh.waterqualitymonitor.utils.DataSaver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.java_websocket.client.WebSocketClient
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,8 +63,10 @@ import kotlin.properties.Delegates
 class MainActivity : ComponentActivity() {
     private lateinit var webSocketClient: WebSocketClient
     private lateinit var dataSaver: DataSaver
+    private lateinit var alertSaver: AlertSaver
     private var delayTime by Delegates.notNull<Long>()
     private lateinit var fileName: String
+    private lateinit var mqttClient: MQTTClient
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -180,17 +189,17 @@ class MainActivity : ComponentActivity() {
                                     Notification(navController)
                                 }
                             }
-                            composable("notification_detail/{notificationId}") { backStackEntry ->
-                                val notificationId =
-                                    backStackEntry.arguments?.getString("notificationId")
-                                        ?.toIntOrNull()
-                                if (notificationId != null) {
-                                    NotificationDetail(
-                                        navController = navController,
-                                        notificationId = notificationId
-                                    )
-                                }
-                            }
+//                            composable("notification_detail/{notificationId}") { backStackEntry ->
+//                                val notificationId =
+//                                    backStackEntry.arguments?.getString("notificationId")
+//                                        ?.toIntOrNull()
+//                                if (notificationId != null) {
+//                                    NotificationDetail(
+//                                        navController = navController,
+//                                        notificationId = notificationId
+//                                    )
+//                                }
+//                            }
                             composable("dashboard_detail/{chartType}") { backStackEntry ->
                                 val chartType =
                                     backStackEntry.arguments?.getString("chartType") ?: "turbidity"
@@ -203,46 +212,117 @@ class MainActivity : ComponentActivity() {
         }
 
         // Kết nối WebSocket
-        try {
-            // Kết nối WebSocket
-            webSocketClient = WebSocketClient()
-            webSocketClient.connect()
-            Log.d("WebSocket", "WebSocket connected")
-        } catch (e: Exception) {
-            Log.e("WebSocket", "Connection Error: ${e.message}", e)
-        }
+//        try {
+//            // Kết nối WebSocket
+//            webSocketClient = WebSocketClient("ws://)
+//            webSocketClient.connect()
+//        } catch (e: Exception) {
+//            Log.e("WebSocket", "Connection Error: ${e.message}", e)
+//        }
+
+//        val serverUri = "tcp://192.168.1.9:2403"
+//        val clientId = "AndroidClient_${System.currentTimeMillis()}"
+
+//        mqttClient = MQTTClient(serverUri, clientId)
+
+        // Kết nối tới MQTT server
+//        mqttClient.connect(
+//            onConnected = {
+//                Log.d("MQTT", "Connected to MQTT server")
+//
+//                // Subscribe vào topic
+//                mqttClient.subscribe("/sensor/data") { topic, message ->
+//                    Log.d("MQTT", "Received message: $message from topic: $topic")
+//                }
+//            },
+//            onError = { error ->
+//                Log.e("MQTT", "Error connecting to MQTT server: $error")
+//            }
+//        )
 
         // Khởi tạo DataSaver
         dataSaver = DataSaver(this)
+        alertSaver = AlertSaver(this)
 
-        // Lưu tất cả dữ liệu vào file JSON
+        // Khởi động WebSocket và lưu dữ liệu
         lifecycleScope.launch {
             try {
-                // Lưu dữ liệu từ API vào file
-                webSocketClient.connect()
-//                dataSaver.saveAllStatsToFile("stats_data_tmp.json")
-                dataSaver.getAllStatsAndSave("stats_data_tmp.json")
+                WebSocketReceiver.connect(
+                    context = this@MainActivity,
+                    serverUrl = "ws://192.168.1.13:4000",
+                    onMessageReceived = { message ->
+                        try {
+                            // Parse JSON từ thông điệp
+                            val jsonObject = JSONObject(message)
+                            val topic = jsonObject.optString("topic", "")
+                            if (topic.isEmpty()) {
+                                Log.e("WebSocketReceiver", "Topic not found in message")
+                                return@connect
+                            }
 
-                // Đọc lại dữ liệu từ file nếu cần
-                val dataFromFile = dataSaver.readDataFromFile("stats_data_tmp.json")
-                if (dataFromFile != null) {
-                    // Xử lý dữ liệu đã đọc từ file (nếu cần)
-                    Toast.makeText(this@MainActivity, "Dữ liệu đã được lưu và đọc thành công", Toast.LENGTH_SHORT).show()
-                    Log.d("MainActivity", "Dữ liệu hiện có: ${dataFromFile.size}")
-                } else {
-                    Toast.makeText(this@MainActivity, "Không tìm thấy dữ liệu trong file", Toast.LENGTH_SHORT).show()
-                }
+                            when (topic) {
+                                "/sensor/data" -> {
+                                    // Xử lý cho topic "/sensor/data"
+                                    val dataString = jsonObject.optString("data", null)
+                                    if (dataString != null) {
+                                        try {
+                                            // Parse chuỗi `data` thành JSON object
+                                            val dataObject = JSONObject(dataString)
+                                            // Ánh xạ thành `StatData`
+                                            val statData = mapToStatData(dataObject)
+                                            // Lưu dữ liệu
+                                            dataSaver.saveNewData(Gson().toJson(statData), "data_tmp.json")
+                                            Log.d("WebSocketReceiver", "Mapped StatData: $statData")
+                                        } catch (e: Exception) {
+                                            Log.e("WebSocketReceiver", "Failed to process sensor data: ${e.message}", e)
+                                        }
+                                    } else {
+                                        Log.e("WebSocketReceiver", "Data not found in /sensor/data message")
+                                    }
+                                }
+//                                "switch system" -> {
+                                "notification" -> {
+                                    // Xử lý cho topic "switch system"
+//                                    val payload = jsonObject.optJSONObject("payload")
+                                    val payload = jsonObject.optJSONObject("message")
+                                    if (payload != null) {
+                                        try {
+                                            // Ánh xạ `payload` thành `Alert`
+                                            val alert = mapToAlert(payload)
+                                            // Lưu thông báo
+                                            alertSaver.saveNewAlert(Gson().toJson(alert), "alerts_data.json")
+                                            Log.d("WebSocketReceiver", "New alert saved: $alert")
+                                        } catch (e: Exception) {
+                                            Log.e("WebSocketReceiver", "Failed to process alert: ${e.message}", e)
+                                        }
+                                    } else {
+                                        Log.e("WebSocketReceiver", "Payload not found for topic 'message'")
+                                    }
+                                }
+                                else -> {
+                                    Log.w("WebSocketReceiver", "Unknown topic received: $topic")
+                                }
+                            }
+
+                        } catch (e: Exception) {
+                            Log.e("WebSocketReceiver", "Error processing message: ${e.message}", e)
+                        }
+                    }
+                )
+                Toast.makeText(this@MainActivity, "WebSocket connected!", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                // Xử lý lỗi nếu có
-                e.printStackTrace()
-                Toast.makeText(this@MainActivity, "Lỗi khi lấy và lưu dữ liệu", Toast.LENGTH_SHORT).show()
+                Log.e("MainActivity", "Error: ${e.message}")
+                Toast.makeText(this@MainActivity, "WebSocket connection failed", Toast.LENGTH_SHORT).show()
             }
         }
 
+
     }
+
     override fun onDestroy() {
         super.onDestroy()
-        webSocketClient.disconnect()  // Ngắt kết nối WebSocket khi Activity bị hủy
+        // Ngắt kết nối WebSocket
+        WebSocketReceiver.disconnect()
     }
 }
 
