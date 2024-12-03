@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.nauh.waterqualitymonitor" />
+                  <option name="mobileSdkAppId" value="1:891241937534:android:dc6f6d4ce1657154df362f" />
+                  <option name="projectId" value="water-quality-monitor-1d889" />
+                  <option name="projectNumber" value="891241937534" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

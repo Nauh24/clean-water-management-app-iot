@@ -49,6 +49,7 @@ import com.nauh.waterqualitymonitor.ui.theme.TopAppBarBackground
 import com.nauh.waterqualitymonitor.ui.theme.WaterQualityMonitorTheme
 import com.nauh.waterqualitymonitor.utils.AlertSaver
 import com.nauh.waterqualitymonitor.utils.DataSaver
+import com.nauh.waterqualitymonitor.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -250,6 +251,7 @@ class MainActivity : ComponentActivity() {
                 WebSocketReceiver.connect(
                     context = this@MainActivity,
                     serverUrl = "ws://192.168.1.13:4000",
+//                    serverUrl = "ws://10.0.2.2:4000",
                     onMessageReceived = { message ->
                         try {
                             // Parse JSON từ thông điệp
@@ -287,6 +289,8 @@ class MainActivity : ComponentActivity() {
                                     val payload = jsonObject.optJSONObject("message")
                                     if (payload != null) {
                                         try {
+                                            val alertMessage = payload.optString("alertMessage", "Thông báo mới từ hệ thống!")
+                                            NotificationUtils.showNotification(applicationContext, "Thông báo mới", alertMessage)
                                             // Ánh xạ `payload` thành `Alert`
                                             val alert = mapToAlert(payload)
                                             // Lưu thông báo

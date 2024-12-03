@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "891241937534",
+    "project_id": "water-quality-monitor-1d889",
+    "storage_bucket": "water-quality-monitor-1d889.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891241937534:android:dc6f6d4ce1657154df362f",
+        "android_client_info": {
+          "package_name": "com.nauh.waterqualitymonitor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzpnvRNrUfBojrn_ZO_Aa6Mc3N2ta1wwk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

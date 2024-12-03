@@ -84,6 +84,10 @@ dependencies {
     implementation (libs.eclipse.org.eclipse.paho.client.mqttv3)
     implementation (libs.koin.androidx.compose)
 
+    // Firebase (Thêm Firebase Cloud Messaging)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+
 //    implementation (libs.compose.charts)
 
 }
